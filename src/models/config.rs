@@ -1,0 +1,22 @@
+use std::sync::OnceLock;
+
+pub struct AppConfig {
+    pub id: String,
+    pub delay_ms: u64,
+    pub token: String,
+    pub port: u64,
+    pub one_at_a_time: bool,
+}
+impl AppConfig {
+    pub fn gen_sample() -> AppConfig {
+        return AppConfig {
+            id: "0".to_string(),
+            delay_ms: 0,
+            token: "MeowMeowMeow".to_string(),
+            port: 8888,
+            one_at_a_time: false,
+        };
+    }
+}
+
+pub static CONFIG: OnceLock<AppConfig> = OnceLock::new();
