@@ -1,18 +1,15 @@
 mod actions;
+mod app;
+mod gui;
 mod models;
 mod network;
 
-use std::thread;
+use gui::App;
 
-use actions::core;
-use network::udp;
+pub fn main() -> iced::Result {
+    app::controller::init();
 
-fn main() {
-    thread::spawn(|| {
-        udp::listen().expect("Failed");
-    });
-    thread::spawn(|| core::listen());
-    loop {
-        std::thread::sleep(std::time::Duration::from_secs(2));
-    }
+    iced::application(App::new, App::update, App::view)
+        .title(App::title)
+        .run()
 }
