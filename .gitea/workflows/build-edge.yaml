@@ -55,14 +55,17 @@ jobs:
         run: |
             apt update && apt install rustup -y
 
-      - name: Setup Rust
-        run: rustup target add x86_64-unknown-linux-musl
-
       - name: Prepare Build
-        run: cargo install cross --git https://github.com/cross-rs/cross
+        run: |
+            rustup default stable
+            cargo install cross --git https://github.com/cross-rs/cross
+            echo "$HOME/.cargo/bin" >> $GITEA_PATH
 
       - name: Build
-        run: cross build --release --target x86_64-unknown-linux-musl
+        env:
+          CROSS_CONTAINER_IN_CONTAINER: true
+        run:
+          cross build --release --target x86_64-unknown-linux-musl
 
       - name: Publish
         run: |
