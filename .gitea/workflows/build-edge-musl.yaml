@@ -1,0 +1,40 @@
+---
+name: Build Edge for musl
+"on":
+  push:
+    paths:
+      - "src/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - ".gitea/workflows/build-edge-musl.yaml"
+  pull_request: {}
+  workflow_dispatch: {}
+
+jobs:
+  build-amd64:
+    runs-on: ubuntu-latest
+    container:
+      image: rust:alpine3.24
+
+    steps:
+      - name: Prepare Checkouts
+        run: |
+          apk add npm
+
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Build
+        run: |
+          apk add alsa-lib-dev pkgconfig
+          rustup target add x86_64-unknown-linux-musl
+
+      - name: Build
+        run: cargo build --release --target x86_64-unknown-linux-musl
+
+      - name: Publish
+        run: |
+          curl  \
+          --user ${{ gitea.repository_owner }}:${{ secrets.TOKEN }} \
+          --upload-file target/x86_64-unknown-linux-musl/release/puppet \
+          https://code.dawn.org.in/api/packages/${{ gitea.repository_owner }}/generic/puppet/edge/puppet-musl-amd64

@@ -1,0 +1,41 @@
+---
+name: Build Edge for glibc
+"on":
+  push:
+    paths:
+      - "src/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - ".gitea/workflows/build-edge-glibc.yaml"
+  pull_request: {}
+  workflow_dispatch: {}
+
+jobs:
+  build-amd64:
+    runs-on: ubuntu-latest
+    container:
+      image: rust:bullseye
+
+    steps:
+      - name: Prepare Checkouts
+        run: |
+          curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+          apt install nodejs -y
+
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Build
+        run: |
+          apt install libasound2-dev -y
+          rustup target add x86_64-unknown-linux-gnu
+
+      - name: Build
+        run: cargo build --release --target x86_64-unknown-linux-gnu
+
+      - name: Publish
+        run: |
+          curl  \
+          --user ${{ gitea.repository_owner }}:${{ secrets.TOKEN }} \
+          --upload-file target/x86_64-unknown-linux-gnu/release/puppet \
+          https://code.dawn.org.in/api/packages/${{ gitea.repository_owner }}/generic/puppet/edge/puppet-glibc-amd64
