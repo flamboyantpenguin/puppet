@@ -1,0 +1,72 @@
+---
+name: Build Edge
+"on":
+  push:
+    paths:
+      - "src/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - ".gitea/workflows/build-edge.yaml"
+  pull_request: {}
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-windows-amd64:
+    runs-on: ubuntu-latest
+    container:
+      image: rust:bullseye
+
+    steps:
+      - name: Prepare Checkouts
+        run: |
+          curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+          apt install nodejs -y
+
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Rust
+        run: |
+          apt install mingw-w64 -y
+          rustup target add x86_64-pc-windows-gnu
+
+      - name: Build
+        run: cargo build --release --target x86_64-pc-windows-gnu
+
+      - name: Publish
+        run: |
+          curl  \
+          --user ${{ gitea.actor }}:${{ secrets.GITEA_TOKEN }} \
+          --upload-file target/x86_64-pc-windows-gnu/release/puppet.exe \
+          https://code.dawn.org.in/api/packages/flamboyantpenguin/generic/puppet/edge/puppet-x86_64.exe
+
+  build-linux-amd64:
+    runs-on: ubuntu-latest
+    container:
+      image: rust:bullseye
+
+    steps:
+      - name: Prepare Checkouts
+        run: |
+          curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+          apt install nodejs -y
+
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Rust
+        run: rustup target add x86_64-unknown-linux-musl
+
+      - name: Build
+        run: cargo build --release --target x86_64-unknown-linux-musl
+
+      - name: Publish
+        run: |
+          curl  \
+          --user ${{ gitea.actor }}:${{ secrets.GITEA_TOKEN }} \
+          --upload-file target/x86_64-unknown-linux-musl/release/puppet \
+          https://code.dawn.org.in/api/packages/flamboyantpenguin/generic/puppet/edge/puppet-amd64-musl
