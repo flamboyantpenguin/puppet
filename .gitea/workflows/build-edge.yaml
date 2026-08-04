@@ -40,7 +40,7 @@ jobs:
       - name: Publish
         run: |
           curl  \
-          --user ${{ gitea.repository_owner }}:${{ secrets.GITEA_TOKEN }} \
+          --user ${{ gitea.repository_owner }}:${{ secrets.TOKEN }} \
           --upload-file target/x86_64-pc-windows-gnu/release/puppet.exe \
           https://code.dawn.org.in/api/packages/flamboyantpenguin/generic/puppet/edge/puppet-x86_64.exe
 
@@ -58,18 +58,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Prepare Build
-        run: apt install musl-tools -y
-
       - name: Setup Rust
         run: rustup target add x86_64-unknown-linux-musl
 
+      - name: Prepare Build
+        run: cargo install cross --git https://github.com/cross-rs/cross
+
       - name: Build
-        run: cargo build --release --target x86_64-unknown-linux-musl
+        run: cross build --release --target x86_64-unknown-linux-musl
 
       - name: Publish
         run: |
           curl  \
-          --user ${{ gitea.repository_owner }}:${{ secrets.GITEA_TOKEN }} \
+          --user ${{ gitea.repository_owner }}:${{ secrets.TOKEN }} \
           --upload-file target/x86_64-unknown-linux-musl/release/puppet \
           https://code.dawn.org.in/api/packages/flamboyantpenguin/generic/puppet/edge/puppet-amd64-musl
