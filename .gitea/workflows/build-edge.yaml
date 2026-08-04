@@ -46,17 +46,14 @@ jobs:
 
   build-linux-amd64:
     runs-on: ubuntu-latest
-    container:
-      image: rust:bullseye
 
     steps:
-      - name: Prepare Checkouts
-        run: |
-          curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
-          apt install nodejs -y
-
       - name: Checkout
         uses: actions/checkout@v6
+
+      - name: Install Deps
+        run: |
+            apt update && apt install rustup -y
 
       - name: Setup Rust
         run: rustup target add x86_64-unknown-linux-musl
