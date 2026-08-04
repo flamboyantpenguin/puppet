@@ -2,11 +2,11 @@
 
 A simple program to receive instructions from a server via UDP broadcasts, then decode them to do the actions as instructed.
 
-## Instructions
+## Instructions 📜
 
 Instructions are JSON data trasmitted as UTF-8 string via UDP broadcasts. Puppet expects the JSON to follow a strict format.
 
-### Fields
+### Fields ⚙️
 
 ```txt
 {
@@ -35,7 +35,7 @@ Instructions are JSON data trasmitted as UTF-8 string via UDP broadcasts. Puppet
 - msg_params: Extra params for the actions
 - timestamp: UNIX EPOCH for puppet to instruct when to start the action (good for precision)
 
-### Sample Command
+### Sample Command 🧑‍💻
 
 The following command sends a sample UDP broadcast on linux using the command `socat`. This can be picked by puppet.
 
@@ -45,11 +45,11 @@ echo '{"header": "!Puppet93", "token": "MeowMeowMeow", "device_id": "0", "msg_ty
 
 This command is to instruct puppet to stream [yumicoradio.net](https://yumicoradio.net) at timestamp 1785863627 for 30 seconds.
 
-## Server
+## Server 🖥
 
 There is no recognised dedicated server program for this purpose as of writing this. You can however write a server in any language to send JSON as UDP broadcasts matching the schema explained above. 
 
-## Some Questions You May Have
+## Some Questions You May Have 🙋
 
 **Q: What is this?**
 
@@ -75,7 +75,7 @@ There is no recognised dedicated server program for this purpose as of writing t
 
 **A:** Excluding the many advantages of Rust including but not limited to cross-compatability, memory safety, excellent library management etc, I do like to code in Rust.
 
-## About
+## About 🐈‍⬛
 
 ```txt
 puppet pre-alpha
