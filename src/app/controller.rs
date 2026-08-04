@@ -1,7 +1,7 @@
 use std::sync::{OnceLock, mpsc};
 use std::thread;
 
-use crate::app::print;
+use crate::app::glog;
 use crate::{actions::core, network::udp};
 
 pub enum AppEvent {
@@ -19,7 +19,7 @@ pub fn init() {
         while let Ok(event) = rx.recv() {
             match event {
                 AppEvent::ConfigSaved => {
-                    print::gprintln("Starting listeners...");
+                    glog!("Starting listeners...");
 
                     thread::spawn(|| {
                         udp::listen().unwrap();

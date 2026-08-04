@@ -3,7 +3,7 @@ use std::sync::mpsc::{self, Sender};
 use std::time::Duration;
 
 use crate::actions::audio;
-use crate::app::{print, runtime};
+use crate::app::{blog, elog, runtime, wlog};
 use crate::models::{
     config::{AppConfig, CONFIG},
     data, queue,
@@ -34,7 +34,7 @@ async fn process(info: data::Payload, config: &AppConfig) {
         match audio::play(info.msg_data.to_string(), info.timestamp).await {
             Ok(()) => {}
             Err(e) => {
-                print::eprintln(&e.to_string());
+                elog!(&e.to_string());
             }
         }
     }
@@ -49,12 +49,12 @@ fn parse(msg: &str) -> Result<(), serde_json::Error> {
     }
 
     if info.device_id != config.id {
-        print::bprintln("Detected passerby");
+        blog!("Detected Passerby", "core");
         return Ok(());
     }
 
     if info.token != config.token {
-        print::eprintln("Invalid Token!");
+        elog!("Invalid token", "core");
         return Ok(());
     }
 
@@ -86,9 +86,12 @@ pub fn listen() {
         //    }
         //};
         if let Err(err) = parse(&msg) {
-            print::eprintln(&format!("Failed to parse first message: {}", err).to_string());
+            elog!(
+                &format!("Failed to parse first message: {}", err).to_string(),
+                "core"
+            );
         };
     }
 
-    print::bprintln("Queue channel closed. Exiting listener.");
+    wlog!("Queue channel closed. Exiting listener.", "core");
 }
