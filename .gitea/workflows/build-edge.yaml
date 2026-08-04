@@ -44,32 +44,55 @@ jobs:
           --upload-file target/x86_64-pc-windows-gnu/release/puppet.exe \
           https://code.dawn.org.in/api/packages/flamboyantpenguin/generic/puppet/edge/puppet-x86_64.exe
 
-  build-linux-amd64:
+  build-linux-amd64-glibc:
     runs-on: ubuntu-latest
+    container:
+      image: rust:bullseye
 
     steps:
+      - name: Prepare Checkouts
+        run: |
+          curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+          apt install nodejs -y
+
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Install Deps
-        run: |
-            apt update && apt install rustup -y
-
-      - name: Prepare Build
-        run: |
-            rustup default stable
-            cargo install cross --git https://github.com/cross-rs/cross
-            echo "$HOME/.cargo/bin" >> $GITEA_PATH
+      - name: Setup Rust
+        run: rustup target add x86_64-unknown-linux-gnu
 
       - name: Build
-        env:
-          CROSS_CONTAINER_IN_CONTAINER: true
-        run:
-          cross build --release --target x86_64-unknown-linux-musl
+        run: cargo build --release --target x86_64-unknown-linux-gnu
 
       - name: Publish
         run: |
           curl  \
-          --user ${{ gitea.repository_owner }}:${{ secrets.TOKEN }} \
-          --upload-file target/x86_64-unknown-linux-musl/release/puppet \
-          https://code.dawn.org.in/api/packages/flamboyantpenguin/generic/puppet/edge/puppet-amd64-musl
+          --user ${{ vars.maintainer }}:${{ secrets.TOKEN }} \
+          --upload-file target/x86_64-unknown-linux-gnu/release/nephrite \
+          https://code.dawn.org.in/api/packages/dawn/generic/nephrite/edge/nephrite-amd64-glibc
+
+  build-linux-amd64-musl:
+    runs-on: ubuntu-latest
+    container:
+      image: rust:alpine3.24
+
+    steps:
+      - name: Prepare Checkouts
+        run: |
+          apk add npm -y
+
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Rust
+        run: rustup target add x86_64-unknown-linux-musl
+
+      - name: Build
+        run: cargo build --release --target x86_64-unknown-linux-musl
+
+      - name: Publish
+        run: |
+          curl  \
+          --user ${{ vars.maintainer }}:${{ secrets.TOKEN }} \
+          --upload-file target/x86_64-unknown-linux-musl/release/nephrite \
+          https://code.dawn.org.in/api/packages/dawn/generic/nephrite/edge/nephrite-amd64-musl
