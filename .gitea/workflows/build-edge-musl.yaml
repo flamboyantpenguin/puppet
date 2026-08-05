@@ -31,7 +31,7 @@ jobs:
 
       - name: Build
         env:
-          RUSTFLAG: "-C target-feature=-crt-static"
+          RUSTFLAGS: "-C target-feature=-crt-static"
         run: cargo build --release --target x86_64-unknown-linux-musl
 
       - name: Publish
