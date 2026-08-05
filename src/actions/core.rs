@@ -1,6 +1,8 @@
 use std::sync::OnceLock;
 use std::sync::mpsc::{self, Sender};
-use std::time::Duration;
+
+use chrono::{Duration, Utc};
+use chrono_humanize::{Accuracy, HumanTime, Tense};
 
 use crate::actions::audio;
 use crate::app::{blog, elog, runtime, wlog};
@@ -26,13 +28,54 @@ fn get_worker() -> &'static Sender<(Payload, &'static AppConfig, String)> {
 }
 
 async fn process(info: data::Payload, config: &AppConfig, host: String) {
+    let target_ms = info.timestamp * 1000;
+
+    let now_ms = Utc::now().timestamp_millis() as u64;
+
+    if target_ms != 0 && target_ms < now_ms {
+        wlog!(
+            &format!(
+                "Received expired message from {}. Messaged supposed to run before {}",
+                host,
+                HumanTime::from(Duration::milliseconds((now_ms - target_ms) as i64))
+                    .to_text_en(Accuracy::Precise, Tense::Present)
+            )
+            .to_string()
+        );
+        return;
+    } else if target_ms >= now_ms {
+        blog!(
+            &format!("Received message for the future. Waiting...").to_string(),
+            "core"
+        );
+        tokio::time::sleep(std::time::Duration::from_millis(target_ms - now_ms)).await;
+    }
+
+    // Now waiting until the predefined delay
+    tokio::time::sleep(std::time::Duration::from_millis(config.delay_ms)).await;
+
     if info.msg_type == "TXT" {
-        tokio::time::sleep(Duration::from_millis(config.delay_ms)).await;
-        blog!(&format!("Received TXT message : {} from {}", info.msg_data, host).to_string());
+        tokio::time::sleep(std::time::Duration::from_millis(config.delay_ms)).await;
+        blog!(
+            &format!("TXT message : {} from {}", info.msg_data, host).to_string(),
+            "core"
+        );
     } else if info.msg_type == "AUD" {
-        tokio::time::sleep(Duration::from_millis(config.delay_ms)).await;
-        blog!(&format!("Received AUD request from {}", host).to_string());
-        match audio::play(info.msg_data.to_string(), info.timestamp).await {
+        tokio::time::sleep(std::time::Duration::from_millis(config.delay_ms)).await;
+        let mut time_s = 0;
+        if let Some(time) = info.get_param(0) {
+            time_s = time.parse::<humantime::Duration>().unwrap().as_secs();
+            blog!(
+                &format!("Playing AUD request from {} for {}", host, time).to_string(),
+                "core"
+            );
+        } else {
+            blog!(
+                &format!("Playing AUD request from {} till end", host).to_string(),
+                "core"
+            );
+        }
+        match audio::play(info.msg_data.to_string(), time_s).await {
             Ok(()) => {}
             Err(e) => {
                 elog!(&e.to_string());

@@ -32,10 +32,10 @@ Instructions are JSON data trasmitted as UTF-8 string via UDP broadcasts. Puppet
   - YTA - YouTube Audio (Coming Soon...)
   - YTV - YouTube Video (Coming Soon...)
 - msg_data: Data for the action to process (For YTA, it is the YouTube URL)
-- msg_params: Extra params for the actions
-- timestamp: UNIX EPOCH for puppet to instruct when to start the action (good for precision)
+- msg_params: Extra params for the actions. ex: "{["50s"]}" as first param for AUD to play for 50s.
+- timestamp: UNIX EPOCH for puppet to instruct when to start the action (good for precision). If the value is 0, puppet is intructed to perform the action ASAP.
 
-### Sample Command 🧑‍💻
+### Sample Commands 🧑‍💻
 
 The following command sends a sample UDP broadcast on linux using the command `socat`. This can be picked by puppet.
 
@@ -44,6 +44,12 @@ echo '{"header": "!Puppet93", "token": "MeowMeowMeow", "device_id": "0", "msg_ty
 ```
 
 This command is to instruct puppet to stream [yumicoradio.net](https://yumicoradio.net) at timestamp 1785863627 for 30 seconds.
+
+This command adds ten second to the current UNIX timestamp before sending the broadcast to show a message.
+
+```bash
+echo '{"header": "!Puppet93", "token": "MeowMeowMeow", "device_id": "0", "msg_type": "TXT", "msg_data": "PING!", "timestamp": '$(($(date +%s) + 10))'}' | socat - UDP-DATAGRAM:10.229.99.255:8888,broadcast
+```
 
 ## Server 🖥
 
@@ -79,7 +85,7 @@ There is no recognised dedicated server program for this purpose as of writing t
 
 ```txt
 puppet pre-alpha
-Last Updated: 04 Aug 2026
+Last Updated: 05 Aug 2026
 
 ペンギン
 ```

@@ -34,7 +34,7 @@ pub async fn play(
         if time_ms == 0 {
             player.sleep_until_end();
         } else {
-            std::thread::sleep(std::time::Duration::from_millis(time_ms));
+            std::thread::sleep(std::time::Duration::from_secs(time_ms));
         }
 
         Ok::<(), Box<dyn std::error::Error + Send + Sync>>(())
