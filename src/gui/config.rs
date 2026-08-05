@@ -10,6 +10,7 @@ pub enum Message {
     TokenChanged(String),
     PortChanged(String),
     OneAtATimeToggled(bool),
+    TimeHashToggled(bool),
     SaveConfig,
 }
 
@@ -20,6 +21,7 @@ pub struct ConfigApp {
     token: String,
     port: String,
     one_at_a_time: bool,
+    time_hash_token: bool,
     saved: bool,
 }
 
@@ -30,27 +32,29 @@ pub enum Action {
 
 impl ConfigApp {
     pub fn new() -> (Self, Task<Message>) {
-        let (header, id, delay_ms, token, port, one_at_a_time) = if let Some(config) = CONFIG.get()
-        {
-            (
-                config.header.clone(),
-                config.id.clone(),
-                config.delay_ms.to_string(),
-                config.token.clone(),
-                config.port.to_string(),
-                config.one_at_a_time,
-            )
-        } else {
-            let temp = AppConfig::gen_sample();
-            (
-                temp.header,
-                temp.id,
-                temp.delay_ms.to_string(),
-                temp.token,
-                temp.port.to_string(),
-                temp.one_at_a_time,
-            )
-        };
+        let (header, id, delay_ms, token, port, one_at_a_time, time_hash_token) =
+            if let Some(config) = CONFIG.get() {
+                (
+                    config.header.clone(),
+                    config.id.clone(),
+                    config.delay_ms.to_string(),
+                    config.token.clone(),
+                    config.port.to_string(),
+                    config.one_at_a_time,
+                    config.time_hash_token,
+                )
+            } else {
+                let temp = AppConfig::gen_sample();
+                (
+                    temp.header,
+                    temp.id,
+                    temp.delay_ms.to_string(),
+                    temp.token,
+                    temp.port.to_string(),
+                    temp.one_at_a_time,
+                    temp.time_hash_token,
+                )
+            };
 
         (
             Self {
@@ -60,6 +64,7 @@ impl ConfigApp {
                 token,
                 port,
                 one_at_a_time,
+                time_hash_token,
                 saved: false,
             },
             Task::none(),
@@ -74,6 +79,7 @@ impl ConfigApp {
             Message::TokenChanged(val) => self.token = val,
             Message::PortChanged(val) => self.port = val,
             Message::OneAtATimeToggled(val) => self.one_at_a_time = val,
+            Message::TimeHashToggled(val) => self.time_hash_token = val,
             Message::SaveConfig => {
                 let parsed_config = AppConfig {
                     header: self.header.clone(),
@@ -82,6 +88,7 @@ impl ConfigApp {
                     token: self.token.clone(),
                     port: self.port.parse::<u64>().unwrap_or(8080),
                     one_at_a_time: self.one_at_a_time,
+                    time_hash_token: self.time_hash_token,
                 };
 
                 let _ = CONFIG.set(parsed_config);
@@ -128,7 +135,11 @@ impl ConfigApp {
             .label("Process one message at a time")
             .on_toggle(Message::OneAtATimeToggled);
 
-        let save_btn = button("Save Configuration").on_press(Message::SaveConfig);
+        let time_hash_toggle = checkbox(self.time_hash_token)
+            .label("Turn on token hashing to prevent intruders")
+            .on_toggle(Message::TimeHashToggled);
+
+        let save_btn = button("Loose Control!").on_press(Message::SaveConfig);
 
         let mut content = column![
             title,
@@ -138,6 +149,7 @@ impl ConfigApp {
             token_input,
             port_input,
             sync_toggle,
+            time_hash_toggle,
             save_btn,
         ]
         .spacing(12)

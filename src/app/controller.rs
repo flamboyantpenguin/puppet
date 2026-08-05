@@ -2,6 +2,7 @@ use std::sync::{OnceLock, mpsc};
 use std::thread;
 
 use crate::app::glog;
+use crate::models::config;
 use crate::{actions::core, network::udp};
 
 pub enum AppEvent {

@@ -11,6 +11,7 @@ chrono = "0.4.45"
 chrono-humanize = "0.2.3"
 humantime = "2.4.0"
 iced = { version = "0.14.0", features = ["image"] }
+iced_video_player = "0.6.0"
 owo-colors = { version = "4.3.0", features = ["supports-colors"] }
 rodio = { version = "0.22.2", features = ["symphonia-all"] }
 serde = { version = "1.0.229", features = ["derive"] }
