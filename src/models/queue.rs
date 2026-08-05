@@ -4,10 +4,10 @@ use std::sync::mpsc::{self, Receiver, Sender};
 use std::thread;
 use std::time::Duration;
 
-static QUEUE_TX: OnceLock<Sender<String>> = OnceLock::new();
-static QUEUE_RX: OnceLock<Mutex<Receiver<String>>> = OnceLock::new();
+static QUEUE_TX: OnceLock<Sender<(String, String)>> = OnceLock::new();
+static QUEUE_RX: OnceLock<Mutex<Receiver<(String, String)>>> = OnceLock::new();
 
-pub fn get_or_init_sender() -> Sender<String> {
+pub fn get_or_init_sender() -> Sender<(String, String)> {
     QUEUE_TX
         .get_or_init(|| {
             let (tx, rx) = mpsc::channel();
@@ -17,7 +17,7 @@ pub fn get_or_init_sender() -> Sender<String> {
         .clone()
 }
 
-pub fn pop_message() -> Option<String> {
+pub fn pop_message() -> Option<(String, String)> {
     let mutex = loop {
         if let Some(rx) = QUEUE_RX.get() {
             break rx;

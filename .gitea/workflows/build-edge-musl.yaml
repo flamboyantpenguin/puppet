@@ -26,10 +26,12 @@ jobs:
 
       - name: Setup Build
         run: |
-          apk add alsa-lib-static alsa-lib-dev pkgconfig
+          apk add alsa-lib-dev pkgconfig
           rustup target add x86_64-unknown-linux-musl
 
       - name: Build
+        env:
+          RUSTFLAG: "-C target-feature=-crt-static"
         run: cargo build --release --target x86_64-unknown-linux-musl
 
       - name: Publish
