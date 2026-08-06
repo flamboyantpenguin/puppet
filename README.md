@@ -85,7 +85,7 @@ There is no recognised dedicated server program for this purpose as of writing t
 
 ```txt
 puppet pre-alpha
-Last Updated: 05 Aug 2026
+Last Updated: 06 Aug 2026
 
 ペンギン
 ```

@@ -5,6 +5,7 @@ use chrono::{Duration, Utc};
 use chrono_humanize::{Accuracy, HumanTime, Tense};
 
 use crate::actions::audio;
+use crate::app::controller::{GuiEvent, send_gui};
 use crate::app::{blog, elog, runtime, wlog};
 use crate::models::data::Payload;
 use crate::models::{
@@ -81,6 +82,20 @@ async fn process(info: data::Payload, config: &AppConfig, host: String) {
                 elog!(&e.to_string());
             }
         }
+    } else if info.msg_type == "VID" {
+        tokio::time::sleep(std::time::Duration::from_millis(config.delay_ms)).await;
+        if let Some(time) = info.get_param(0) {
+            blog!(
+                &format!("Playing VID request from {} for {}", host, time).to_string(),
+                "core"
+            );
+        } else {
+            blog!(
+                &format!("Playing VID request from {} till end", host).to_string(),
+                "core"
+            );
+        }
+        send_gui(GuiEvent::LoadVideo(info.msg_data));
     }
 }
 

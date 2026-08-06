@@ -10,6 +10,8 @@ pub fn main() -> iced::Result {
     app::controller::init();
 
     iced::application(App::new, App::update, App::view)
+        .subscription(App::subscription)
         .title(App::title)
+        .theme(App::theme)
         .run()
 }
