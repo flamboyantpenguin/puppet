@@ -13,25 +13,19 @@ name: Build Edge for Windows
 jobs:
   build-amd64:
     runs-on: ubuntu-latest
-    container:
-      image: rust:bullseye
 
     steps:
-      - name: Prepare Checkouts
-        run: |
-          curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
-          apt install nodejs -y
-
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
-      - name: Setup Rust
+      - name: Prepare Build
         run: |
-          apt install mingw-w64 -y
-          rustup target add x86_64-pc-windows-gnu
+          apt-get install rustup -y
+          rustup default stable
+          cargo install cross
 
       - name: Build
-        run: cargo build --release --target x86_64-pc-windows-gnu
+        run: cross build --release --target x86_64-pc-windows-gnu
 
       - name: Publish
         run: |

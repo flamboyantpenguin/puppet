@@ -27,7 +27,10 @@ jobs:
 
       - name: Setup Build
         run: |
-          apt install libasound2-dev -y
+          apt-get install -y \
+            libasound2-dev \
+            libgstreamer1.0-dev \
+            libgstreamer-plugins-base1.0-dev
           rustup target add x86_64-unknown-linux-gnu
 
       - name: Build
