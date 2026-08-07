@@ -20,10 +20,11 @@ jobs:
       - name: Setup MSVC Developer Environment
         uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
+      - name: Setup Rust Toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          targets: x86_64-pc-windows-msvc
+          toolchain: stable
+          target: x86_64-pc-windows-msvc
 
       - name: Build
         env:
