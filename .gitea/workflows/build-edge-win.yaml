@@ -6,6 +6,7 @@ name: Build Edge for Windows
       - "src/**"
       - "Cargo.toml"
       - "Cargo.lock"
+      - ".gitea/workflows/build-edge-win.yaml"
   pull_request: {}
   workflow_dispatch: {}
 
@@ -15,19 +16,20 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
-      - name: Build binary
-        uses: houseabsolute/actions-rust-cross@v1
-        with:
-          command: build
-          target: x86_64-pc-windows-gnu
-          args: "--locked --release"
-          strip: true
+      - name: Build
+        run: |
+          apt update && apt install rustup -y
+          rustup default stable
+          mkdir -p /root/.cargo /root/.xargo /root/.rustup /test
+          mv src Cargo.* /test && cd /test
+          cargo install cross
+          /root/.cargo/bin/cross build --release --target x86_64-pc-windows-gnu
 
       - name: Publish
         run: |
-          ls -alR .
+          ls -R /test && cd /test
           curl  \
           --user ${{ gitea.repository_owner }}:${{ secrets.TOKEN }} \
           --upload-file target/x86_64-pc-windows-gnu/release/puppet.exe \
