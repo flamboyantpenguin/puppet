@@ -1,8 +1,9 @@
+use crate::app::elog;
 use crate::gui::assets::LOGO_BYTES;
 use crate::gui::fonts;
 use crate::gui::models::Config;
 use crate::gui::theme::{PaletteExt, footer_button_style};
-use crate::models::config::{AppConfig, CONFIG};
+use crate::models::config::{AppConfig, CONFIG, app_static};
 use iced::alignment::{Horizontal, Vertical};
 use iced::border::Radius;
 use iced::gradient::Linear;
@@ -24,6 +25,7 @@ pub enum Message {
     SaveConfig,
     ToggleLeftPane,
     JsonTextChanged(text_editor::Action),
+    OpenSite(String),
 }
 
 pub struct WelcomeApp {
@@ -122,6 +124,16 @@ impl WelcomeApp {
                         }
                     }
                 }
+            }
+
+            Message::OpenSite(url) => {
+                if let Err(e) = open::that(url) {
+                    elog!(
+                        &format!("Unable to open a website on the host via host. {}", e)
+                            .to_string(),
+                        "gui"
+                    );
+                };
             }
 
             Message::ToggleLeftPane => self.show_left_pane = !self.show_left_pane,
@@ -298,15 +310,15 @@ impl WelcomeApp {
 
         let github_button = button(text("").font(fonts::NERD_FONT).size(24))
             .style(footer_button_style)
-            .on_press(Message::SaveConfig);
+            .on_press(Message::OpenSite(String::from(app_static().github_url)));
 
         let packages_button = button(text("").font(fonts::NERD_FONT).size(24))
             .style(footer_button_style)
-            .on_press(Message::SaveConfig);
+            .on_press(Message::OpenSite(String::from(app_static().package_url)));
 
         let puppeteer_button = button(text("󰮃").font(fonts::NERD_FONT).size(24))
             .style(footer_button_style)
-            .on_press(Message::SaveConfig);
+            .on_press(Message::OpenSite(String::from(app_static().puppeteer_url)));
 
         let bottom_right = container(
             row![

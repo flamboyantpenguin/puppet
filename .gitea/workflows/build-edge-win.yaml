@@ -6,31 +6,38 @@ name: Build Edge for Windows
       - "src/**"
       - "Cargo.toml"
       - "Cargo.lock"
-      - ".gitea/workflows/build-edge-win.yaml"
   pull_request: {}
   workflow_dispatch: {}
 
 jobs:
   build-amd64:
-    runs-on: ubuntu-latest
+    runs-on: windows-amd64
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup MSVC Developer Environment
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
       - name: Build
-        run: |
-          apt update && apt install rustup -y
-          rustup default stable
-          mkdir -p /root/.cargo /root/.xargo /root/.rustup /test
-          mv src Cargo.* /test && cd /test
-          cargo install cross
-          /root/.cargo/bin/cross build --release --target x86_64-pc-windows-gnu
+        env:
+          CARGO_BUILD_JOBS: 2
+        run: cargo build --release --target x86_64-pc-windows-msvc
 
       - name: Publish
+        shell: pwsh
         run: |
-          ls -R /test && cd /test
+          curl \
+          --user ${{ gitea.repository_owner }}:${{ secrets.TOKEN }} \
+          -X DELETE \
+          https://code.dawn.org.in/api/packages/${{ gitea.repository_owner }}/generic/puppet/edge/puppet-x86_64.exe
           curl  \
           --user ${{ gitea.repository_owner }}:${{ secrets.TOKEN }} \
-          --upload-file target/x86_64-pc-windows-gnu/release/puppet.exe \
+          --upload-file target/x86_64-pc-windows-msvc/release/puppet.exe \
           https://code.dawn.org.in/api/packages/${{ gitea.repository_owner }}/generic/puppet/edge/puppet-x86_64.exe

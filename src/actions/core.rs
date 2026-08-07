@@ -52,7 +52,6 @@ async fn process(info: data::Payload, config: &AppConfig, host: String) {
         tokio::time::sleep(std::time::Duration::from_millis(target_ms - now_ms)).await;
     }
 
-    // Now waiting until the predefined delay
     tokio::time::sleep(std::time::Duration::from_millis(config.delay_ms)).await;
 
     if info.msg_type == "TXT" {
