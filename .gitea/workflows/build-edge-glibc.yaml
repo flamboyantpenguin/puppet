@@ -37,6 +37,10 @@ jobs:
 
       - name: Publish
         run: |
+          curl \
+          --user ${{ gitea.repository_owner }}:${{ secrets.TOKEN }} \
+          -X DELETE \
+          https://code.dawn.org.in/api/packages/${{ gitea.repository_owner }}/generic/puppet/edge/puppet-glibc-amd64
           curl  \
           --user ${{ gitea.repository_owner }}:${{ secrets.TOKEN }} \
           --upload-file target/x86_64-unknown-linux-gnu/release/puppet \
