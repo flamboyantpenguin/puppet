@@ -7,11 +7,11 @@ repository = "https://github.com/flamboyantpenguin/puppet"
 description = "A broadcast logic system controller client for various tasks"
 
 [dependencies]
-chrono = "0.4.45"
+chrono = { version = "0.4.45", default-features = false, features = ["clock", "std"] }
 chrono-humanize = "0.2.3"
 dark-light = "2.0.0"
 humantime = "2.4.0"
-iced = { version = "0.14.0", features = ["image"] }
+iced = { version = "0.14.0", features = ["image", "svg"] }
 iced_gif = { version = "0.14.0", features = ["tokio"] }
 iced_video_player = "0.6.0"
 owo-colors = { version = "4.3.0", features = ["supports-colors"] }
@@ -19,7 +19,7 @@ rodio = { version = "0.22.2", features = ["symphonia-all"] }
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1.0.151"
 stream-download = "0.24.3"
-tokio = { version = "1.53.1", features = ["full"] }
+tokio =  { version = "1.53.1", features = ["rt-multi-thread"] }
 url = "2.5.8"
 
 [profile.release]
@@ -27,3 +27,4 @@ overflow-checks = true
 opt-level = "z"
 lto = true
 strip = "symbols"
+codegen-units = 1

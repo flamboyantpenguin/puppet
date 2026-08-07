@@ -6,6 +6,8 @@ mod network;
 
 use gui::App;
 
+use crate::gui::NERD_FONT;
+
 pub fn main() -> iced::Result {
     app::controller::init();
 
@@ -13,5 +15,6 @@ pub fn main() -> iced::Result {
         .subscription(App::subscription)
         .title(App::title)
         .theme(App::theme)
+        .default_font(NERD_FONT)
         .run()
 }

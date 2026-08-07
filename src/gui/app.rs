@@ -1,4 +1,7 @@
-use iced::{Element, Subscription, Task, Theme, futures::SinkExt, stream};
+use iced::{Element, Subscription, Task, futures::SinkExt, stream};
+
+use crate::gui::fonts;
+use crate::gui::theme::CrimsonPuppet;
 
 use crate::{
     app::{
@@ -6,28 +9,28 @@ use crate::{
         elog,
     },
     gui::{
-        config::{Action, ConfigApp, Message as ConfigMessage},
         idle::Idle,
         player::{Message as PlayerMessage, PlayerApp},
+        welcome::{Action, Message as WelcomeMessage, WelcomeApp},
     },
 };
 
 pub struct App {
     screen: Screen,
-    theme: Theme,
+    theme: CrimsonPuppet,
 }
 
 enum Screen {
-    Config(ConfigApp),
+    Welcome(WelcomeApp),
     Player(PlayerApp),
     Idle(Idle),
 }
 
 #[derive(Debug)]
 pub enum Message {
-    Config(ConfigMessage),
+    FontLoaded(Result<(), iced::font::Error>),
+    Welcome(WelcomeMessage),
     Player(PlayerMessage),
-    Idle,
     Gui(GuiEvent),
 }
 
@@ -62,32 +65,36 @@ fn gui_listener() -> impl iced::futures::Stream<Item = Message> {
 
 impl App {
     pub fn new() -> (Self, Task<Message>) {
-        let (config, task) = ConfigApp::new();
+        let (config, task) = WelcomeApp::new();
 
         let is_dark =
             dark_light::detect().unwrap_or(dark_light::Mode::Dark) == dark_light::Mode::Dark;
 
         let initial_theme = if is_dark {
-            Theme::TokyoNight
+            CrimsonPuppet::CrimsonDark
         } else {
-            Theme::TokyoNightLight
+            CrimsonPuppet::CrimsonLight
         };
+
+        let font_task = fonts::load().map(Message::FontLoaded);
+
+        let config_task = task.map(Message::Welcome);
 
         (
             Self {
-                screen: Screen::Config(config),
+                screen: Screen::Welcome(config),
                 theme: initial_theme,
             },
-            task.map(Message::Config),
+            Task::batch(vec![config_task, font_task]),
         )
     }
 
     pub fn title(&self) -> String {
-        return "Victim".to_string();
+        return "Puppet".to_string();
     }
 
     pub fn theme(&self) -> iced::Theme {
-        self.theme.clone()
+        self.theme.clone().to_iced_theme()
     }
 
     pub fn subscription(&self) -> Subscription<Message> {
@@ -96,7 +103,7 @@ impl App {
 
     pub fn update(&mut self, message: Message) -> Task<Message> {
         match (&mut self.screen, message) {
-            (Screen::Config(config), Message::Config(msg)) => {
+            (Screen::Welcome(config), Message::Welcome(msg)) => {
                 let (task, action) = config.update(msg);
 
                 match action {
@@ -108,7 +115,7 @@ impl App {
                     }
                 }
 
-                task.map(Message::Config)
+                task.map(Message::Welcome)
             }
 
             (Screen::Player(player), Message::Player(msg)) => {
@@ -138,7 +145,7 @@ impl App {
 
     pub fn view(&self) -> Element<'_, Message> {
         match &self.screen {
-            Screen::Config(config) => config.view().map(Message::Config),
+            Screen::Welcome(config) => config.view().map(Message::Welcome),
             Screen::Player(player) => player.view().map(Message::Player),
             Screen::Idle(idle) => idle.view().map(|_| unreachable!()),
         }

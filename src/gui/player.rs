@@ -80,7 +80,7 @@ impl PlayerApp {
                     self.dragging = false;
                     video
                         .seek(Duration::from_secs_f64(self.position), false)
-                        .expect("seek");
+                        .expect("seek failed");
                     video.set_paused(false);
                 }
                 Message::EndOfStream => {
@@ -130,18 +130,14 @@ impl PlayerApp {
                         .align_y(iced::alignment::Vertical::Center)
                         .padding(iced::Padding::new(10.0).top(0.0))
                         .push(
-                            Button::new(Text::new(if video.paused() { "Play" } else { "Pause" }))
+                            Button::new(Text::new(if video.paused() { "" } else { "" }))
                                 .width(80.0)
                                 .on_press(Message::TogglePause),
                         )
                         .push(
-                            Button::new(Text::new(if video.looping() {
-                                "Disable Loop"
-                            } else {
-                                "Enable Loop"
-                            }))
-                            .width(120.0)
-                            .on_press(Message::ToggleLoop),
+                            Button::new(Text::new(if video.looping() { "󰑗" } else { "󰑖" }))
+                                .width(120.0)
+                                .on_press(Message::ToggleLoop),
                         )
                         .push(
                             Text::new(format!(

@@ -6,7 +6,6 @@ name: Build Edge for glibc
       - "src/**"
       - "Cargo.toml"
       - "Cargo.lock"
-      - ".gitea/workflows/build-edge-glibc.yaml"
   pull_request: {}
   workflow_dispatch: {}
 

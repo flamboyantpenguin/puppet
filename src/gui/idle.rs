@@ -3,6 +3,7 @@ use iced::{Element, Length};
 use iced_gif::widget::gif;
 
 use crate::gui::app::Message;
+use crate::gui::assets::IDLE_VID;
 
 #[derive(Default)]
 pub struct Idle {
@@ -11,8 +12,8 @@ pub struct Idle {
 
 impl Idle {
     pub fn new() -> Self {
-        let gif_bytes = include_bytes!("../assets/hehe.gif").to_vec();
-        let frames = gif::Frames::from_bytes(gif_bytes).expect("Failed to decode embedded GIF");
+        let frames =
+            gif::Frames::from_bytes(IDLE_VID.to_vec()).expect("Failed to decode embedded GIF");
 
         Idle {
             frames: Some(frames),
