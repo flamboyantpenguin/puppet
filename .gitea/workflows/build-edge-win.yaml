@@ -28,6 +28,9 @@ jobs:
 
       - name: Setup vcpkg
         uses: lukka/run-vcpkg@v11
+        env:
+          VCPKG_DEFAULT_TRIPLET: x64-windows
+          VCPKG_DEFAULT_HOST_TRIPLET: x64-windows
         with:
           runVcpkgInstall: true
           vcpkgJsonGlob: '**/vcpkg.json'
