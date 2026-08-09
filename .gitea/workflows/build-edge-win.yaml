@@ -26,6 +26,11 @@ jobs:
           toolchain: stable
           target: x86_64-pc-windows-msvc
 
+      - name: Setup vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          runVcpkgInstall: true
+
       - name: Build
         env:
           CARGO_BUILD_JOBS: 2
