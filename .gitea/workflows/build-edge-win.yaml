@@ -32,6 +32,7 @@ jobs:
           VCPKG_DEFAULT_TRIPLET: x64-windows
           VCPKG_DEFAULT_HOST_TRIPLET: x64-windows
         with:
+          vcpkgDirectory: 'C:\Users\Pot\vcpkg'
           runVcpkgInstall: true
           vcpkgJsonGlob: '**/vcpkg.json'
 
