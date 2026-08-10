@@ -15,40 +15,40 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
-      - name: Setup MSVC Developer Environment
-        uses: ilammy/msvc-dev-cmd@v1
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          path-type: inherit
+          install: >-
+            mingw-w64-x86_64-toolchain
+            mingw-w64-x86_64-pkgconf
+            mingw-w64-x86_64-glib2
 
       - name: Setup Rust Toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
-          target: x86_64-pc-windows-msvc
-
-      - name: Setup vcpkg
-        uses: lukka/run-vcpkg@v11
-        env:
-          VCPKG_DEFAULT_TRIPLET: x64-windows
-          VCPKG_DEFAULT_HOST_TRIPLET: x64-windows
-        with:
-          vcpkgDirectory: 'C:\Users\Pot\vcpkg'
-          runVcpkgInstall: true
-          vcpkgJsonGlob: '**/vcpkg.json'
+          target: x86_64-pc-windows-gnu
 
       - name: Build
+        shell: msys2 {0}
         env:
           CARGO_BUILD_JOBS: 2
-        run: cargo build --release --target x86_64-pc-windows-msvc
+        run: cargo build --release --target x86_64-pc-windows-gnu
 
       - name: Publish
         shell: pwsh
         run: |
-          curl \
-          --user ${{ gitea.repository_owner }}:${{ secrets.TOKEN }} \
-          -X DELETE \
-          https://code.dawn.org.in/api/packages/${{ gitea.repository_owner }}/generic/puppet/edge/puppet-x86_64.exe
-          curl  \
-          --user ${{ gitea.repository_owner }}:${{ secrets.TOKEN }} \
-          --upload-file target/x86_64-pc-windows-msvc/release/puppet.exe \
-          https://code.dawn.org.in/api/packages/${{ gitea.repository_owner }}/generic/puppet/edge/puppet-x86_64.exe
+          curl.exe `
+            --user "${{ gitea.repository_owner }}:${{ secrets.TOKEN }}" `
+            -X DELETE `
+            https://code.dawn.org.in/api/packages/${{ gitea.repository_owner }}/generic/puppet/edge/puppet-x86_64.exe
+
+          curl.exe `
+            --user "${{ gitea.repository_owner }}:${{ secrets.TOKEN }}" `
+            --upload-file target/x86_64-pc-windows-gnu/release/puppet.exe `
+            https://code.dawn.org.in/api/packages/${{ gitea.repository_owner }}/generic/puppet/edge/puppet-x86_64.exe
