@@ -17,9 +17,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Install Gstreamer
-        run: |
-            winget install --silent gstreamerproject.gstreamer
+      - name: Setup GStreamer
+        uses: marcpabst/setup-gstreamer@v.1.5.3
+        with:
+          version: '1.28.6'
 
       - name: Setup MSYS2
         uses: msys2/setup-msys2@v2
@@ -69,9 +70,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Gstreamer
-        run: |
-            winget install --silent gstreamerproject.gstreamer
+      - name: Setup GStreamer
+        uses: marcpabst/setup-gstreamer@v.1.5.3
+        with:
+          version: '1.28.6'
 
       - name: Setup MSVC Developer Environment
         uses: ilammy/msvc-dev-cmd@v1
