@@ -10,6 +10,48 @@ name: Build Edge for Windows
   workflow_dispatch: {}
 
 jobs:
+  build-msvc:
+    runs-on: windows-amd64
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup MSVC Developer Environment
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Setup Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          target: x86_64-pc-windows-msvc
+
+      - name: Setup gstreamer
+        run: |
+          Invoke-WebRequest -Uri "https://gstreamer.freedesktop.org/data/pkg/windows/1.28.6/msvc/gstreamer-1.0-msvc-x86_64-1.28.6.exe" -OutFile "gst-setup.exe" -UseBasicParsing
+
+          Start-Process .\gst-setup.exe -ArgumentList "/VERYSILENT /NORESTART /CURRENTUSER /TYPE=devel /DIR=C:\Users\Pot\gstreamer" -Wait
+
+          "C:\Users\Pot\gstreamer\bin" >> $env:GITEA_PATH
+
+      - name: Build
+        env:
+          CARGO_BUILD_JOBS: 2
+        run: cargo build --release --target x86_64-pc-windows-msvc
+
+      - name: Publish
+        run: |
+          dir target/x86_64-pc-windows-msvc/release
+          curl.exe `
+            --user "${{ gitea.repository_owner }}:${{ secrets.TOKEN }}" `
+            -X DELETE `
+            https://code.dawn.org.in/api/packages/${{ gitea.repository_owner }}/generic/puppet/edge/puppet-x86_64.exe
+
+          curl.exe `
+            --user "${{ gitea.repository_owner }}:${{ secrets.TOKEN }}" `
+            --upload-file target/x86_64-pc-windows-msvc/release/puppet.exe `
+            https://code.dawn.org.in/api/packages/${{ gitea.repository_owner }}/generic/puppet/edge/puppet-x86_64.exe
+
   build-gnu:
     runs-on: windows-amd64
 
@@ -19,9 +61,8 @@ jobs:
 
       - name: Setup MSYS2
         uses: msys2/setup-msys2@v2
-        env:
-          MSYS2_LOCATION: C:\Users\Pot\msys2
         with:
+          location: C:\Users\Pot\msys2
           msystem: MINGW64
           update: true
           path-type: inherit
@@ -47,6 +88,7 @@ jobs:
 
       - name: Publish
         run: |
+          dir target/x86_64-pc-windows-msvc/release
           curl.exe `
             --user "${{ gitea.repository_owner }}:${{ secrets.TOKEN }}" `
             -X DELETE `
@@ -56,44 +98,3 @@ jobs:
             --user "${{ gitea.repository_owner }}:${{ secrets.TOKEN }}" `
             --upload-file target/x86_64-pc-windows-gnu/release/puppet.exe `
             https://code.dawn.org.in/api/packages/${{ gitea.repository_owner }}/generic/puppet/edge/puppet-gnu-x86_64.exe
-
-  build-msvc:
-    runs-on: windows-amd64
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup MSVC Developer Environment
-        uses: ilammy/msvc-dev-cmd@v1
-
-      - name: Setup Rust Toolchain
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: stable
-          target: x86_64-pc-windows-msvc
-
-      - name: Setup gstreamer
-        run: |
-          Invoke-WebRequest -Uri "https://gstreamer.freedesktop.org/data/pkg/windows/1.28.6/msvc/gstreamer-1.0-msvc-x86_64-1.28.6.exe" -OutFile "gst-setup.exe" -UseBasicParsing
-
-          Start-Process .\gst-setup.exe -ArgumentList "/VERYSILENT /NORESTART /CURRENTUSER /TYPE=devel /DIR=C:\Users\Pot\gstreamer" -Wait
-
-          echo "C:\Users\Pot\gstreamer\bin" >> $env:GITEA_PATH
-
-      - name: Build
-        env:
-          CARGO_BUILD_JOBS: 2
-        run: cargo build --release --target x86_64-pc-windows-msvc
-
-      - name: Publish
-        run: |
-          curl.exe `
-            --user "${{ gitea.repository_owner }}:${{ secrets.TOKEN }}" `
-            -X DELETE `
-            https://code.dawn.org.in/api/packages/${{ gitea.repository_owner }}/generic/puppet/edge/puppet-x86_64.exe
-
-          curl.exe `
-            --user "${{ gitea.repository_owner }}:${{ secrets.TOKEN }}" `
-            --upload-file target/x86_64-pc-windows-msvc/release/puppet.exe `
-            https://code.dawn.org.in/api/packages/${{ gitea.repository_owner }}/generic/puppet/edge/puppet-x86_64.exe
