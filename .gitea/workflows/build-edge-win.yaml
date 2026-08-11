@@ -46,7 +46,6 @@ jobs:
         run: cargo build --release --target x86_64-pc-windows-gnu
 
       - name: Publish
-        shell: pwsh
         run: |
           curl.exe `
             --user "${{ gitea.repository_owner }}:${{ secrets.TOKEN }}" `
@@ -74,15 +73,13 @@ jobs:
           toolchain: stable
           target: x86_64-pc-windows-msvc
 
-      - name: Setup vcpkg
-        uses: lukka/run-vcpkg@v11
-        env:
-          VCPKG_DEFAULT_TRIPLET: x64-windows
-          VCPKG_DEFAULT_HOST_TRIPLET: x64-windows
-        with:
-          vcpkgDirectory: 'C:\Users\Pot\vcpkg'
-          runVcpkgInstall: true
-          vcpkgJsonGlob: '**/vcpkg.json'
+      - name: Setup gstreamer
+        run: |
+          Invoke-WebRequest -Uri "https://gstreamer.freedesktop.org/data/pkg/windows/1.28.6/msvc/gstreamer-1.0-msvc-x86_64-1.28.6.exe" -OutFile "gst-setup.exe" -UseBasicParsing
+
+          Start-Process .\gst-setup.exe -ArgumentList "/VERYSILENT /NORESTART /CURRENTUSER /TYPE=devel /DIR=C:\Users\Pot\gstreamer" -Wait
+
+          echo "C:\Users\Pot\gstreamer\bin" >> $env:GITEA_PATH
 
       - name: Build
         env:
@@ -90,7 +87,6 @@ jobs:
         run: cargo build --release --target x86_64-pc-windows-msvc
 
       - name: Publish
-        shell: pwsh
         run: |
           curl.exe `
             --user "${{ gitea.repository_owner }}:${{ secrets.TOKEN }}" `

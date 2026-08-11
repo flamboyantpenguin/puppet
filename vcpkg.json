@@ -1,9 +1,0 @@
-{
-  "name": "puppet",
-  "builtin-baseline": "ea1a7396b05637a53bf23c078647ecc0edee4b80",
-  "version-string": "0.1.0",
-  "dependencies": [
-    "glib",
-    "pkgconf"
-  ]
-}
