@@ -7,6 +7,7 @@ use crate::models::config::{AppConfig, CONFIG, app_static};
 use iced::alignment::{Horizontal, Vertical};
 use iced::border::Radius;
 use iced::gradient::Linear;
+use iced::widget::scrollable::{Direction, Scrollbar};
 use iced::widget::space::horizontal;
 use iced::widget::{
     Space, button, checkbox, column, container, row, scrollable, svg, text, text_editor, text_input,
@@ -236,6 +237,7 @@ impl WelcomeApp {
                         ]
                         .spacing(20)
                     )
+                    .direction(Direction::Vertical(Scrollbar::hidden()))
                     .height(Length::Fill),
                     row![logo, horizontal()]
                 ]
