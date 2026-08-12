@@ -24,6 +24,9 @@ stream-download = "0.24.3"
 tokio =  { version = "1.53.1", features = ["rt-multi-thread"] }
 url = "2.5.8"
 
+[target.'cfg(windows)'.build-dependencies]
+winres = "0.1.12"
+
 [profile.release]
 overflow-checks = true
 opt-level = "z"
