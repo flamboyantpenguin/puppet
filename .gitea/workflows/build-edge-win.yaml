@@ -26,13 +26,45 @@ jobs:
           toolchain: stable
           target: x86_64-pc-windows-msvc
 
+      - uses: Swatinem/rust-cache@v2
+
       - name: Setup gstreamer
         run: |
-          Invoke-WebRequest -Uri "https://gstreamer.freedesktop.org/data/pkg/windows/1.28.6/msvc/gstreamer-1.0-msvc-x86_64-1.28.6.exe" -OutFile "gst-setup.exe" -UseBasicParsing
+          $gstreamerDir = "C:\Users\Pot\gstreamer"
+          $gstreamerBin = Join-Path $gstreamerDir "bin"
+          $gstLaunch = Join-Path $gstreamerBin "gst-launch-1.0.exe"
 
-          Start-Process .\gst-setup.exe -ArgumentList "/VERYSILENT /NORESTART /CURRENTUSER /TYPE=devel /DIR=C:\Users\Pot\gstreamer" -Wait
+          $requiredVersion = "1.28.6"
+          $needsInstall = $true
 
-          Add-Content -Path $env:GITEA_PATH -Value "C:\Users\Pot\gstreamer\bin"
+          if (Test-Path $gstLaunch -PathType Leaf) {
+              $versionOutput = & $gstLaunch --version 2>$null
+
+              if ($LASTEXITCODE -eq 0 -and $versionOutput -match "GStreamer\s+$([regex]::Escape($requiredVersion))") {
+                  $needsInstall = $false
+                  Write-Host "GStreamer $requiredVersion already installed."
+              }
+          }
+
+          if ($needsInstall) {
+              Write-Host "GStreamer not found. Installing..."
+
+              Invoke-WebRequest `
+                  -Uri "https://gstreamer.freedesktop.org/data/pkg/windows/1.28.6/msvc/gstreamer-1.0-msvc-x86_64-1.28.6.exe" `
+                  -OutFile "gst-setup.exe" `
+                  -UseBasicParsing
+
+              Start-Process .\gst-setup.exe `
+                  -ArgumentList "/VERYSILENT /NORESTART /CURRENTUSER /TYPE=devel /DIR=$gstreamerDir" `
+                  -Wait
+
+              Remove-Item .\gst-setup.exe -Force
+          }
+          else {
+              Write-Host "GStreamer already installed."
+          }
+
+          Add-Content -Path $env:GITEA_PATH -Value $gstreamerBin
 
       - name: Build
         env:
@@ -41,7 +73,6 @@ jobs:
 
       - name: Publish
         run: |
-          dir target/x86_64-pc-windows-msvc/release
           curl.exe `
             --user "${{ gitea.repository_owner }}:${{ secrets.TOKEN }}" `
             -X DELETE `
