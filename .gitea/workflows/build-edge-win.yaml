@@ -32,7 +32,7 @@ jobs:
 
           Start-Process .\gst-setup.exe -ArgumentList "/VERYSILENT /NORESTART /CURRENTUSER /TYPE=devel /DIR=C:\Users\Pot\gstreamer" -Wait
 
-          "C:\Users\Pot\gstreamer\bin" >> $env:GITEA_PATH
+          Add-Content -Path $env:GITEA_PATH -Value "C:\Users\Pot\gstreamer\bin"
 
       - name: Build
         env:
