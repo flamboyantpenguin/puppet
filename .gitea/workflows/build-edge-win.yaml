@@ -27,6 +27,8 @@ jobs:
           target: x86_64-pc-windows-msvc
 
       - uses: Swatinem/rust-cache@v2
+        with:
+          key: windows-amd64
 
       - name: Setup gstreamer
         run: |
