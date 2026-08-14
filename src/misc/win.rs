@@ -46,7 +46,7 @@ pub fn setup_gstreamer() {
         panic!("gstreamer not found in system");
     };
 
-    let mut paths = vec![gstreamer_bin];
+    let mut paths = vec![gstreamer_bin.clone()];
 
     if let Some(existing_path) = env::var_os("PATH") {
         paths.extend(env::split_paths(&existing_path));
@@ -64,8 +64,9 @@ pub fn setup_gstreamer() {
         SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | LOAD_LIBRARY_SEARCH_USER_DIRS)
             .expect("Failed to configure DLL search path");
 
-        AddDllDirectory(windows::core::PCWSTR(wide_path.as_ptr()))
-            .expect("Failed to add GStreamer DLL directory");
+        let cookie = AddDllDirectory(windows::core::PCWSTR(wide_path.as_ptr()));
+
+        assert!(!cookie.is_null(), "Failed to add GStreamer DLL directory");
 
         env::set_var("PATH", new_path);
     }
