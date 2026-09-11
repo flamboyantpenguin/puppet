@@ -12,6 +12,7 @@ pub enum AppEvent {
 #[derive(Debug, Clone)]
 pub enum GuiEvent {
     LoadVideo(String),
+    LoadImage(String),
 }
 
 static EVENTS: OnceLock<std_mpsc::Sender<AppEvent>> = OnceLock::new();
