@@ -1,7 +1,7 @@
-use iced::{Element, Subscription, Task, futures::SinkExt, stream};
-
 use crate::gui::fonts;
+
 use crate::gui::theme::CrimsonPuppet;
+use iced::{Element, Subscription, Task, futures::SinkExt, stream};
 
 use crate::{
     app::{
@@ -24,6 +24,7 @@ enum Screen {
     Welcome(WelcomeApp),
     Player(PlayerApp),
     Idle(Idle),
+    Image(iced::widget::image::Handle),
 }
 
 #[derive(Debug)]
@@ -32,6 +33,22 @@ pub enum Message {
     Welcome(WelcomeMessage),
     Player(PlayerMessage),
     Gui(GuiEvent),
+    ImageLoaded(Result<Vec<u8>, String>),
+}
+fn load_image(url: String) -> Task<Message> {
+    let rt = crate::app::runtime::get_runtime();
+
+    let handle = rt.spawn(async move {
+        let response = reqwest::get(&url).await.map_err(|e| e.to_string())?;
+        let bytes = response.bytes().await.map_err(|e| e.to_string())?;
+
+        Ok::<Vec<u8>, String>(bytes.to_vec())
+    });
+
+    Task::perform(
+        async move { handle.await.map_err(|e| e.to_string())? },
+        Message::ImageLoaded,
+    )
 }
 
 fn gui_listener() -> impl iced::futures::Stream<Item = Message> {
@@ -138,6 +155,23 @@ impl App {
 
                 Task::none()
             }
+            (_, Message::Gui(GuiEvent::LoadImage(url))) => load_image(url),
+
+            (_, Message::ImageLoaded(result)) => {
+                match result {
+                    Ok(bytes) => {
+                        let image = iced::widget::image::Handle::from_bytes(bytes);
+
+                        self.screen = Screen::Image(image);
+                    }
+
+                    Err(err) => {
+                        elog!(&format!("Failed to load image: {}", err), "gui");
+                    }
+                }
+
+                Task::none()
+            }
 
             _ => Task::none(),
         }
@@ -148,6 +182,7 @@ impl App {
             Screen::Welcome(config) => config.view().map(Message::Welcome),
             Screen::Player(player) => player.view().map(Message::Player),
             Screen::Idle(idle) => idle.view().map(|_| unreachable!()),
+            Screen::Image(image) => iced::widget::image(image.clone()).into(),
         }
     }
 }

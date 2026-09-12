@@ -35,6 +35,9 @@ pub struct WelcomeApp {
     pub raw_json: text_editor::Content,
     pub json_error: Option<String>,
 }
+pub struct ImageApp {
+    image: iced::widget::image::Handle,
+}
 
 pub enum Action {
     None,
