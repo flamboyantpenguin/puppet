@@ -7,11 +7,9 @@ use chrono_humanize::{Accuracy, HumanTime, Tense};
 use crate::actions::audio;
 use crate::app::controller::{GuiEvent, send_gui};
 use crate::app::{blog, elog, runtime, wlog};
+use crate::models::config::app_config;
 use crate::models::data::Payload;
-use crate::models::{
-    config::{AppConfig, CONFIG},
-    data, queue,
-};
+use crate::models::{config::AppConfig, data, queue};
 
 static WORKER_TX: OnceLock<Sender<(Payload, &AppConfig, String)>> = OnceLock::new();
 
@@ -97,30 +95,26 @@ async fn process(info: data::Payload, config: &AppConfig, host: String) {
         send_gui(GuiEvent::LoadVideo(info.msg_data));
     } else if info.msg_type == "IMG" {
         tokio::time::sleep(std::time::Duration::from_millis(config.delay_ms)).await;
-        if let Some(time) = info.get_param(0) {
-            blog!(
-                &format!("Displaying IMG request from {} for {}", host, time).to_string(),
-                "core"
-            );
-        } else {
-            blog!(
-                &format!("Displaying IMG request from {} till end", host).to_string(),
-                "core"
-            );
-        }
+        blog!(
+            &format!("Displaying IMG request from {} indefinitely", host).to_string(),
+            "core"
+        );
         send_gui(GuiEvent::LoadImage(info.msg_data));
+    } else if info.msg_type == "VOD" {
+        tokio::time::sleep(std::time::Duration::from_millis(config.delay_ms)).await;
+        send_gui(GuiEvent::UnLoad);
     }
 }
 
 fn parse(msg: (String, String)) -> Result<(), serde_json::Error> {
     let info: data::Payload = serde_json::from_str(&msg.0)?;
-    let config = CONFIG.get_or_init(|| AppConfig::gen_sample());
+    let config = app_config();
 
     if info.header != config.header {
         return Ok(());
     }
 
-    if info.device_id != config.id {
+    if info.device_id != config.id || info.device_id != "*" {
         blog!("Detected Passerby", "core");
         return Ok(());
     }

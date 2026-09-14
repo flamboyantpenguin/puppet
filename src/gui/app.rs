@@ -1,6 +1,7 @@
-use crate::gui::fonts;
+use crate::gui::{fonts, image::load_image};
 
 use crate::gui::theme::CrimsonPuppet;
+use crate::models::config::app_config;
 use iced::{Element, Subscription, Task, futures::SinkExt, stream};
 
 use crate::{
@@ -24,6 +25,7 @@ enum Screen {
     Welcome(WelcomeApp),
     Player(PlayerApp),
     Idle(Idle),
+    Void,
     Image(iced::widget::image::Handle),
 }
 
@@ -34,21 +36,6 @@ pub enum Message {
     Player(PlayerMessage),
     Gui(GuiEvent),
     ImageLoaded(Result<Vec<u8>, String>),
-}
-fn load_image(url: String) -> Task<Message> {
-    let rt = crate::app::runtime::get_runtime();
-
-    let handle = rt.spawn(async move {
-        let response = reqwest::get(&url).await.map_err(|e| e.to_string())?;
-        let bytes = response.bytes().await.map_err(|e| e.to_string())?;
-
-        Ok::<Vec<u8>, String>(bytes.to_vec())
-    });
-
-    Task::perform(
-        async move { handle.await.map_err(|e| e.to_string())? },
-        Message::ImageLoaded,
-    )
 }
 
 fn gui_listener() -> impl iced::futures::Stream<Item = Message> {
@@ -126,9 +113,13 @@ impl App {
                 match action {
                     Action::None => {}
 
-                    Action::ConfigSaved => {
+                    Action::ConfigSaved(show_idle) => {
                         controller::send(AppEvent::ConfigSaved);
-                        self.screen = Screen::Idle(Idle::new());
+                        if show_idle {
+                            self.screen = Screen::Idle(Idle::new());
+                        } else {
+                            self.screen = Screen::Void;
+                        }
                     }
                 }
 
@@ -141,7 +132,11 @@ impl App {
                 player.update(msg);
 
                 if is_end_of_stream {
-                    self.screen = Screen::Idle(Idle::new());
+                    if app_config().show_idle {
+                        self.screen = Screen::Idle(Idle::new());
+                    } else {
+                        self.screen = Screen::Void;
+                    }
                 }
 
                 Task::none()
@@ -155,7 +150,17 @@ impl App {
 
                 Task::none()
             }
+
             (_, Message::Gui(GuiEvent::LoadImage(url))) => load_image(url),
+
+            (_, Message::Gui(GuiEvent::UnLoad)) => {
+                if app_config().show_idle {
+                    self.screen = Screen::Idle(Idle::new());
+                } else {
+                    self.screen = Screen::Void;
+                }
+                Task::none()
+            }
 
             (_, Message::ImageLoaded(result)) => {
                 match result {
@@ -183,6 +188,7 @@ impl App {
             Screen::Player(player) => player.view().map(Message::Player),
             Screen::Idle(idle) => idle.view().map(|_| unreachable!()),
             Screen::Image(image) => iced::widget::image(image.clone()).into(),
+            Screen::Void => iced::widget::space().into(),
         }
     }
 }

@@ -2,12 +2,12 @@ use std::io::Result;
 use std::net::UdpSocket;
 
 use crate::app::{blog, elog};
-use crate::models::config::{AppConfig, CONFIG};
+use crate::models::config::app_config;
 
 use crate::models::queue::get_or_init_sender;
 
 pub fn listen() -> Result<()> {
-    let config = CONFIG.get_or_init(|| AppConfig::gen_sample());
+    let config = app_config();
     let broadcast_port = config.port;
     let socket = UdpSocket::bind(format!("0.0.0.0:{}", broadcast_port))?;
     blog!(

@@ -1,5 +1,5 @@
 ---
-name: Build Edge for glibc
+name: Build Edge for glibc (ancient)
 "on":
   push:
     paths:
@@ -13,23 +13,24 @@ jobs:
   build-amd64:
     runs-on: ubuntu-latest
     container:
-      image: rust:bullseye
+      image: ubuntu:22.04
 
     steps:
       - name: Prepare Checkouts
         run: |
-          curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
-          apt install nodejs -y
+          apt update
+          apt install rustup nodejs -y
 
       - name: Checkout
         uses: actions/checkout@v6
 
       - name: Setup Build
         run: |
-          apt-get install -y \
+          apt install -y \
             libasound2-dev \
             libgstreamer1.0-dev \
             libgstreamer-plugins-base1.0-dev
+          rustup default stable
           rustup target add x86_64-unknown-linux-gnu
 
       - uses: Swatinem/rust-cache@v2
