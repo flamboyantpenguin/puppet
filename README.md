@@ -26,8 +26,10 @@ Instructions are JSON data trasmitted as UTF-8 string via UDP broadcasts. Puppet
 - token: A simple string to block intruders (TODO: Token is not hashed as of writing this)
 - device_id: ID that identifies the puppet host. Is a string
 - msg_type: Classifies instruction types
+  - VOD - Void (None)
   - TXT - Text
   - AUD - Audio
+  - IMG - Image
   - VID - Video (Coming Soon...)
   - YTA - YouTube Audio (Coming Soon...)
   - YTV - YouTube Video (Coming Soon...)
@@ -53,7 +55,7 @@ echo '{"header": "!Puppet93", "token": "MeowMeowMeow", "device_id": "0", "msg_ty
 
 ## Server 🖥
 
-There is no recognised dedicated server program for this purpose as of writing this. You can however write a server in any language to send JSON as UDP broadcasts matching the schema explained above. 
+There is no recognised dedicated server program for this purpose as of writing this. You can however write a server in any language to send JSON as UDP broadcasts matching the schema explained above.
 
 ## Some Questions You May Have 🙋
 
@@ -85,7 +87,7 @@ There is no recognised dedicated server program for this purpose as of writing t
 
 ```txt
 puppet pre-alpha
-Last Updated: 07 Aug 2026
+Last Updated: 15 Sep 2026
 
 ペンギン
 ```
