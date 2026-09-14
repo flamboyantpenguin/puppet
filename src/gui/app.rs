@@ -132,7 +132,10 @@ impl App {
                 player.update(msg);
 
                 if is_end_of_stream {
-                    if app_config().show_idle {
+                    if app_config()
+                        .expect("Config not initialized on welcome - this should not happen")
+                        .show_idle
+                    {
                         self.screen = Screen::Idle(Idle::new());
                     } else {
                         self.screen = Screen::Void;
@@ -154,7 +157,10 @@ impl App {
             (_, Message::Gui(GuiEvent::LoadImage(url))) => load_image(url),
 
             (_, Message::Gui(GuiEvent::UnLoad)) => {
-                if app_config().show_idle {
+                if app_config()
+                    .expect("Config not initialized on welcome - this should not happen")
+                    .show_idle
+                {
                     self.screen = Screen::Idle(Idle::new());
                 } else {
                     self.screen = Screen::Void;

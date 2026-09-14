@@ -2,7 +2,7 @@ use std::sync::{OnceLock, mpsc as std_mpsc};
 use std::thread;
 use tokio::sync::{Mutex, mpsc};
 
-use crate::app::data::{load_config, save_config};
+use crate::app::data::save_config;
 use crate::app::glog;
 use crate::{actions::core, network::udp};
 
@@ -24,8 +24,6 @@ static GUI_RECEIVER: OnceLock<tokio::sync::Mutex<mpsc::UnboundedReceiver<GuiEven
     OnceLock::new();
 
 pub fn init() {
-    load_config();
-
     let (tx, rx) = std_mpsc::channel();
     let (g_tx, g_rx) = mpsc::unbounded_channel();
 

@@ -108,7 +108,7 @@ async fn process(info: data::Payload, config: &AppConfig, host: String) {
 
 fn parse(msg: (String, String)) -> Result<(), serde_json::Error> {
     let info: data::Payload = serde_json::from_str(&msg.0)?;
-    let config = app_config();
+    let config = app_config().expect("Config not initialized on welcome - this should not happen");
 
     if info.header != config.header {
         return Ok(());

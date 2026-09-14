@@ -1,4 +1,4 @@
-use crate::app::elog;
+use crate::app::{elog, load_config};
 use crate::gui::assets::LOGO_BYTES;
 use crate::gui::fonts;
 use crate::gui::theme::{PaletteExt, footer_button_style};
@@ -43,7 +43,7 @@ pub enum Action {
 
 impl WelcomeApp {
     pub fn new() -> (Self, Task<Message>) {
-        let config = AppConfig::default();
+        let config = load_config().unwrap_or(AppConfig::default());
         let initial_json = serde_json::to_string_pretty(&config).unwrap_or_default();
         let raw_json = text_editor::Content::with_text(&initial_json);
 
@@ -109,7 +109,10 @@ impl WelcomeApp {
                     time_hash_token: self.config.time_hash_token,
                     show_idle: self.config.show_idle,
                 };
-                let _ = CONFIG.set(parsed_config);
+                if CONFIG.set(parsed_config).is_err() {
+                    println!("Error: CONFIG has already been initialized and cannot be set again!");
+                }
+
                 return (Task::none(), Action::ConfigSaved(self.config.show_idle));
             }
 

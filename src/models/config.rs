@@ -45,6 +45,6 @@ impl AppConfig {
 
 pub static CONFIG: OnceLock<AppConfig> = OnceLock::new();
 
-pub fn app_config() -> &'static AppConfig {
-    CONFIG.get_or_init(|| AppConfig::default())
+pub fn app_config() -> Option<&'static AppConfig> {
+    CONFIG.get()
 }

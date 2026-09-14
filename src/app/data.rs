@@ -3,27 +3,31 @@ use std::fs::{self, File};
 
 use crate::{
     app::{blog, elog, wlog},
-    models::config::{AppConfig, CONFIG, app_config, app_static},
+    models::config::{AppConfig, app_config, app_static},
 };
 
-pub fn load_config() {
+pub fn load_config() -> Option<AppConfig> {
     let Some(dirs) = ProjectDirs::from("", "", app_static().app_name) else {
-        elog!("Unable to determine xdg directories");
-        return;
+        elog!("Unable to determine config directory");
+        return None;
     };
 
     let config_file = dirs.config_dir().join("prev.json");
 
     let Ok(file) = File::open(config_file) else {
         wlog!("Previous config not found, must be new run");
-        return;
+        return None;
     };
 
-    if let Ok(imported_data) = serde_json::from_reader::<_, AppConfig>(file) {
-        CONFIG.set(imported_data).ok();
-        blog!("Previous config loaded");
-    } else {
-        elog!("Invalid config. Corruption perhaps?");
+    match serde_json::from_reader::<_, AppConfig>(file) {
+        Ok(imported_data) => {
+            blog!("Previous config found");
+            Some(imported_data)
+        }
+        Err(_) => {
+            elog!("Invalid config. Corruption perhaps?");
+            None
+        }
     }
 }
 
@@ -47,7 +51,10 @@ pub fn save_config() {
         return;
     };
 
-    if let Err(_) = serde_json::to_writer_pretty(file, app_config()) {
+    if let Err(_) = serde_json::to_writer_pretty(
+        file,
+        &app_config().expect("Config not initialized on welcome - this should not happen"),
+    ) {
         elog!("Unable to write config");
         return;
     }

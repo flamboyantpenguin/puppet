@@ -7,7 +7,7 @@ use crate::models::config::app_config;
 use crate::models::queue::get_or_init_sender;
 
 pub fn listen() -> Result<()> {
-    let config = app_config();
+    let config = app_config().expect("Config not initialized on welcome - this should not happen");
     let broadcast_port = config.port;
     let socket = UdpSocket::bind(format!("0.0.0.0:{}", broadcast_port))?;
     blog!(
