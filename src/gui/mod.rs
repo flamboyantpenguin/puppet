@@ -1,10 +1,11 @@
 pub mod app;
-mod fonts;
 pub mod idle;
 pub mod player;
 pub mod welcome;
 
 mod assets;
+mod fonts;
+mod image;
 mod theme;
 
 pub use app::App;

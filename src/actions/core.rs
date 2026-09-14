@@ -95,18 +95,14 @@ async fn process(info: data::Payload, config: &AppConfig, host: String) {
         send_gui(GuiEvent::LoadVideo(info.msg_data));
     } else if info.msg_type == "IMG" {
         tokio::time::sleep(std::time::Duration::from_millis(config.delay_ms)).await;
-        if let Some(time) = info.get_param(0) {
-            blog!(
-                &format!("Displaying IMG request from {} for {}", host, time).to_string(),
-                "core"
-            );
-        } else {
-            blog!(
-                &format!("Displaying IMG request from {} till end", host).to_string(),
-                "core"
-            );
-        }
+        blog!(
+            &format!("Displaying IMG request from {} indefinitely", host).to_string(),
+            "core"
+        );
         send_gui(GuiEvent::LoadImage(info.msg_data));
+    } else if info.msg_type == "VOD" {
+        tokio::time::sleep(std::time::Duration::from_millis(config.delay_ms)).await;
+        send_gui(GuiEvent::UnLoad);
     }
 }
 

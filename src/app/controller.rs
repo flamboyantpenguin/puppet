@@ -11,6 +11,7 @@ pub enum AppEvent {
 
 #[derive(Debug, Clone)]
 pub enum GuiEvent {
+    UnLoad,
     LoadVideo(String),
     LoadImage(String),
 }
