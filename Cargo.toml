@@ -32,3 +32,4 @@ opt-level = "z"
 lto = true
 strip = "symbols"
 codegen-units = 1
+panic = "abort"
