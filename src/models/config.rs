@@ -10,7 +10,7 @@ pub struct AppStatic {
 pub fn app_static() -> &'static AppStatic {
     static INSTANCE: OnceLock<AppStatic> = OnceLock::new();
     INSTANCE.get_or_init(|| AppStatic {
-        app_name: "Puppet",
+        app_name: "puppet",
         github_url: "https://github.com/flamboyantpenguin/puppet",
         package_url: "https://code.dawn.org.in/flamboyantpenguin/puppet/packages",
         puppeteer_url: "https://github.com/flamboyantpenguin/puppeteer",
