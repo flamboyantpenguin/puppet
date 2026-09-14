@@ -114,7 +114,7 @@ fn parse(msg: (String, String)) -> Result<(), serde_json::Error> {
         return Ok(());
     }
 
-    if info.device_id != config.id {
+    if info.device_id != config.id || info.device_id != "*" {
         blog!("Detected Passerby", "core");
         return Ok(());
     }
