@@ -1,5 +1,5 @@
 ---
-name: Build Edge for glibc (ancient)
+name: Build Edge for glibc
 "on":
   push:
     paths:
@@ -10,27 +10,51 @@ name: Build Edge for glibc (ancient)
   workflow_dispatch: {}
 
 jobs:
+  build-amd64-ancient:
+    runs-on: ubuntu-latest
+    container:
+      image: code.dawn.org.in/flamboyantpenguin/binarier-ancient-puppet:latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ubuntu-latest
+
+      - name: Build
+        run: cargo build --release --target x86_64-unknown-linux-gnu
+
+      - name: Publish
+        run: |
+          curl \
+          --user ${{ gitea.repository_owner }}:${{ secrets.TOKEN }} \
+          -X DELETE \
+          https://code.dawn.org.in/api/packages/${{ gitea.repository_owner }}/generic/puppet/edge/puppet-glibc-amd64-ancient
+          curl  \
+          --user ${{ gitea.repository_owner }}:${{ secrets.TOKEN }} \
+          --upload-file target/x86_64-unknown-linux-gnu/release/puppet \
+          https://code.dawn.org.in/api/packages/${{ gitea.repository_owner }}/generic/puppet/edge/puppet-glibc-amd64-ancient
+
   build-amd64:
     runs-on: ubuntu-latest
     container:
-      image: ubuntu:22.04
+      image: rust:bookworm
 
     steps:
       - name: Prepare Checkouts
-        run: |
-          apt update
-          apt install rustup nodejs -y
+        run: apt update && apt install nodejs -y
 
       - name: Checkout
         uses: actions/checkout@v6
 
       - name: Setup Build
         run: |
-          apt install -y \
+          apt-get install -y \
             libasound2-dev \
             libgstreamer1.0-dev \
             libgstreamer-plugins-base1.0-dev
-          rustup default stable
           rustup target add x86_64-unknown-linux-gnu
 
       - uses: Swatinem/rust-cache@v2
