@@ -20,7 +20,7 @@ pub fn app_static() -> &'static AppStatic {
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct AppConfig {
     pub header: String,
-    pub id: String,
+    pub device_id: String,
     pub delay_ms: u64,
     pub token: String,
     pub port: u64,
@@ -32,7 +32,7 @@ impl AppConfig {
     pub fn default() -> AppConfig {
         return AppConfig {
             header: "!Puppet93".to_string(),
-            id: "0".to_string(),
+            device_id: "0".to_string(),
             delay_ms: 0,
             token: "MeowMeowMeow".to_string(),
             port: 8888,

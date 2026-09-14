@@ -71,7 +71,7 @@ impl WelcomeApp {
                 self.sync_json_from_config();
             }
             Message::IdChanged(val) => {
-                self.config.id = val;
+                self.config.device_id = val;
                 self.sync_json_from_config();
             }
             Message::DelayChanged(val) => {
@@ -101,7 +101,7 @@ impl WelcomeApp {
             Message::SaveConfig => {
                 let parsed_config = AppConfig {
                     header: self.config.header.clone(),
-                    id: self.config.id.clone(),
+                    device_id: self.config.device_id.clone(),
                     delay_ms: self.config.delay_ms,
                     token: self.config.token.clone(),
                     port: self.config.port,
@@ -163,7 +163,7 @@ impl WelcomeApp {
 
         let id_input = column![
             text("ID:").size(14).style(text::secondary),
-            text_input("Enter ID", &self.config.id)
+            text_input("Enter ID", &self.config.device_id)
                 .on_input(Message::IdChanged)
                 .size(16)
                 .padding([12, 14])

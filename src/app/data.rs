@@ -8,7 +8,7 @@ use crate::{
 
 pub fn load_config() {
     let Some(dirs) = ProjectDirs::from("", "", app_static().app_name) else {
-        elog!("Unable to determine config directory");
+        elog!("Unable to determine xdg directories");
         return;
     };
 
