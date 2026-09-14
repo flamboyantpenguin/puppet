@@ -15,6 +15,7 @@ pub fn app_static() -> &'static AppStatic {
     })
 }
 
+#[derive(serde::Serialize, serde::Deserialize)]
 pub struct AppConfig {
     pub header: String,
     pub id: String,
@@ -23,9 +24,10 @@ pub struct AppConfig {
     pub port: u64,
     pub one_at_a_time: bool,
     pub time_hash_token: bool,
+    pub show_idle: bool,
 }
 impl AppConfig {
-    pub fn gen_sample() -> AppConfig {
+    pub fn default() -> AppConfig {
         return AppConfig {
             header: "!Puppet93".to_string(),
             id: "0".to_string(),
@@ -34,8 +36,13 @@ impl AppConfig {
             port: 8888,
             one_at_a_time: false,
             time_hash_token: false,
+            show_idle: false,
         };
     }
 }
 
 pub static CONFIG: OnceLock<AppConfig> = OnceLock::new();
+
+pub fn app_config() -> &'static AppConfig {
+    CONFIG.get_or_init(|| AppConfig::default())
+}

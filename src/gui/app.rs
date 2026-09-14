@@ -24,6 +24,7 @@ enum Screen {
     Welcome(WelcomeApp),
     Player(PlayerApp),
     Idle(Idle),
+    Void,
     Image(iced::widget::image::Handle),
 }
 
@@ -126,9 +127,13 @@ impl App {
                 match action {
                     Action::None => {}
 
-                    Action::ConfigSaved => {
+                    Action::ConfigSaved(show_idle) => {
                         controller::send(AppEvent::ConfigSaved);
-                        self.screen = Screen::Idle(Idle::new());
+                        if show_idle {
+                            self.screen = Screen::Idle(Idle::new());
+                        } else {
+                            self.screen = Screen::Void;
+                        }
                     }
                 }
 
@@ -183,6 +188,7 @@ impl App {
             Screen::Player(player) => player.view().map(Message::Player),
             Screen::Idle(idle) => idle.view().map(|_| unreachable!()),
             Screen::Image(image) => iced::widget::image(image.clone()).into(),
+            Screen::Void => iced::widget::space().into(),
         }
     }
 }

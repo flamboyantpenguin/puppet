@@ -5,7 +5,6 @@ pub mod player;
 pub mod welcome;
 
 mod assets;
-mod models;
 mod theme;
 
 pub use app::App;

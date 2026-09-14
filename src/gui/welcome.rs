@@ -1,7 +1,6 @@
 use crate::app::elog;
 use crate::gui::assets::LOGO_BYTES;
 use crate::gui::fonts;
-use crate::gui::models::Config;
 use crate::gui::theme::{PaletteExt, footer_button_style};
 use crate::models::config::{AppConfig, CONFIG, app_static};
 use iced::alignment::{Horizontal, Vertical};
@@ -23,6 +22,7 @@ pub enum Message {
     PortChanged(String),
     OneAtATimeToggled(bool),
     TimeHashToggled(bool),
+    ShowIdleToggled(bool),
     SaveConfig,
     ToggleLeftPane,
     JsonTextChanged(text_editor::Action),
@@ -30,23 +30,20 @@ pub enum Message {
 }
 
 pub struct WelcomeApp {
-    config: Config,
+    config: AppConfig,
     show_left_pane: bool,
     pub raw_json: text_editor::Content,
     pub json_error: Option<String>,
 }
-pub struct ImageApp {
-    image: iced::widget::image::Handle,
-}
 
 pub enum Action {
     None,
-    ConfigSaved,
+    ConfigSaved(bool),
 }
 
 impl WelcomeApp {
     pub fn new() -> (Self, Task<Message>) {
-        let config = Config::default();
+        let config = AppConfig::default();
         let initial_json = serde_json::to_string_pretty(&config).unwrap_or_default();
         let raw_json = text_editor::Content::with_text(&initial_json);
 
@@ -78,7 +75,7 @@ impl WelcomeApp {
                 self.sync_json_from_config();
             }
             Message::DelayChanged(val) => {
-                self.config.delay_ms = val;
+                self.config.delay_ms = val.parse().unwrap_or(0);
                 self.sync_json_from_config();
             }
             Message::TokenChanged(val) => {
@@ -86,7 +83,7 @@ impl WelcomeApp {
                 self.sync_json_from_config();
             }
             Message::PortChanged(val) => {
-                self.config.port = val;
+                self.config.port = val.parse().unwrap_or(0);
                 self.sync_json_from_config();
             }
             Message::OneAtATimeToggled(val) => {
@@ -97,18 +94,23 @@ impl WelcomeApp {
                 self.config.time_hash_token = val;
                 self.sync_json_from_config();
             }
+            Message::ShowIdleToggled(val) => {
+                self.config.show_idle = val;
+                self.sync_json_from_config();
+            }
             Message::SaveConfig => {
                 let parsed_config = AppConfig {
                     header: self.config.header.clone(),
                     id: self.config.id.clone(),
-                    delay_ms: self.config.delay_ms.parse().unwrap_or(0),
+                    delay_ms: self.config.delay_ms,
                     token: self.config.token.clone(),
-                    port: self.config.port.parse().unwrap_or(8888),
+                    port: self.config.port,
                     one_at_a_time: self.config.one_at_a_time,
                     time_hash_token: self.config.time_hash_token,
+                    show_idle: self.config.show_idle,
                 };
                 let _ = CONFIG.set(parsed_config);
-                return (Task::none(), Action::ConfigSaved);
+                return (Task::none(), Action::ConfigSaved(self.config.show_idle));
             }
 
             Message::JsonTextChanged(action) => {
@@ -118,7 +120,7 @@ impl WelcomeApp {
                 if is_edit {
                     let data = self.raw_json.text();
 
-                    match serde_json::from_str::<Config>(&data) {
+                    match serde_json::from_str::<AppConfig>(&data) {
                         Ok(parsed_config) => {
                             self.config = parsed_config;
                             self.json_error = None;
@@ -211,6 +213,13 @@ impl WelcomeApp {
             .size(20)
             .spacing(12);
 
+        let show_idle_toggle = checkbox(self.config.show_idle)
+            .label("Turn on idle?")
+            .font(Font::MONOSPACE)
+            .on_toggle(Message::ShowIdleToggled)
+            .size(20)
+            .spacing(12);
+
         let handle = svg::Handle::from_memory(LOGO_BYTES);
 
         let logo = svg(handle)
@@ -237,6 +246,7 @@ impl WelcomeApp {
                             port_input,
                             sync_toggle,
                             time_hash_toggle,
+                            show_idle_toggle
                         ]
                         .spacing(20)
                     )

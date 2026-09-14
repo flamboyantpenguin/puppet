@@ -7,11 +7,9 @@ use chrono_humanize::{Accuracy, HumanTime, Tense};
 use crate::actions::audio;
 use crate::app::controller::{GuiEvent, send_gui};
 use crate::app::{blog, elog, runtime, wlog};
+use crate::models::config::app_config;
 use crate::models::data::Payload;
-use crate::models::{
-    config::{AppConfig, CONFIG},
-    data, queue,
-};
+use crate::models::{config::AppConfig, data, queue};
 
 static WORKER_TX: OnceLock<Sender<(Payload, &AppConfig, String)>> = OnceLock::new();
 
@@ -114,7 +112,7 @@ async fn process(info: data::Payload, config: &AppConfig, host: String) {
 
 fn parse(msg: (String, String)) -> Result<(), serde_json::Error> {
     let info: data::Payload = serde_json::from_str(&msg.0)?;
-    let config = CONFIG.get_or_init(|| AppConfig::gen_sample());
+    let config = app_config();
 
     if info.header != config.header {
         return Ok(());
