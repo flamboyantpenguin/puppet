@@ -2,6 +2,7 @@ use crate::gui::{fonts, image::load_image};
 
 use crate::gui::theme::CrimsonPuppet;
 use crate::models::config::app_config;
+use iced::window;
 use iced::{Element, Subscription, Task, futures::SinkExt, stream};
 
 use crate::{
@@ -108,10 +109,10 @@ impl App {
     pub fn update(&mut self, message: Message) -> Task<Message> {
         match (&mut self.screen, message) {
             (Screen::Welcome(config), Message::Welcome(msg)) => {
-                let (task, action) = config.update(msg);
+                let action = config.update(msg);
 
                 match action {
-                    Action::None => {}
+                    Action::None => Task::none(),
 
                     Action::ConfigSaved(show_idle) => {
                         controller::send(AppEvent::ConfigSaved);
@@ -120,10 +121,12 @@ impl App {
                         } else {
                             self.screen = Screen::Void;
                         }
+                        window::latest().then(|id| {
+                            id.map(|id| window::set_mode(id, window::Mode::Fullscreen))
+                                .unwrap_or_else(Task::<Message>::none)
+                        })
                     }
                 }
-
-                task.map(Message::Welcome)
             }
 
             (Screen::Player(player), Message::Player(msg)) => {

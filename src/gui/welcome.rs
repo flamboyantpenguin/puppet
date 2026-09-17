@@ -64,7 +64,7 @@ impl WelcomeApp {
         }
     }
 
-    pub fn update(&mut self, message: Message) -> (Task<Message>, Action) {
+    pub fn update(&mut self, message: Message) -> Action {
         match message {
             Message::HeaderChanged(val) => {
                 self.config.header = val;
@@ -113,7 +113,7 @@ impl WelcomeApp {
                     println!("Error: CONFIG has already been initialized and cannot be set again!");
                 }
 
-                return (Task::none(), Action::ConfigSaved(self.config.show_idle));
+                return Action::ConfigSaved(self.config.show_idle);
             }
 
             Message::JsonTextChanged(action) => {
@@ -147,7 +147,7 @@ impl WelcomeApp {
 
             Message::ToggleLeftPane => self.show_left_pane = !self.show_left_pane,
         }
-        (Task::none(), Action::None)
+        Action::None
     }
 
     pub fn view(&self) -> Element<'_, Message> {
