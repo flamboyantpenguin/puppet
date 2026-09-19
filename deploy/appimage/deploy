@@ -1,0 +1,49 @@
+#!/bin/bash
+
+OUTPUT="/output"
+
+# This script must be placed in the root directory
+
+####  #   # ### #     ####
+#   # #   #  #  #     #   #
+####  #   #  #  #     #   #
+#   # #   #  #  #     #   #
+####   ###  ### ##### ####
+
+cargo build --release
+
+cp target/release/puppet .
+
+# This happens if you don't follow a universal code for architectures ):[
+arch=$(dpkg --print-architecture)
+if [ $arch = "i386" ]; then
+    ARCH="i386"
+    arch="i686"
+    lib="/usr/lib/i386-linux-gnu"
+    export GSTREAMER_PLUGINS_DIR=$lib/gstreamer-1.0
+elif [ $arch = "armhf" ]; then
+    ARCH="armhf"
+    lib="/usr/lib/arm-linux-gnueabihf"
+    export GSTREAMER_PLUGINS_DIR=$lib/gstreamer-1.0
+else
+    arch=$(uname -m)
+    lib="/usr/lib/$ARCH-linux-gnu"
+fi
+
+wget "https://github.com/linuxdeploy/linuxdeploy/releases/latest/download/linuxdeploy-x86_64.AppImage"
+wget "https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gstreamer/refs/heads/master/linuxdeploy-plugin-gstreamer.sh"
+
+chmod u+x ./*
+
+mkdir -p AppDir/usr/share/icons/hicolor/scalable
+
+cp desktop/appimage/* .
+cp in.org.dawn.puppet.svg AppDir/usr/share/icons/hicolor/scalable
+
+./linuxdeploy-x86_64.AppImage \
+    --appimage-extract-and-run \
+    --appdir AppDir \
+    -e puppet -d in.org.dawn.puppet.desktop -i in.org.dawn.puppet.svg \
+    --plugin gstreamer --output appimage
+
+mv puppet*.svg $OUTPUT
