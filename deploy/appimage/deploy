@@ -58,7 +58,7 @@ chmod u+x ./*
 mkdir -p AppDir/usr/share/icons/hicolor/scalable
 mkdir -p /usr/share/metainfo
 
-cp desktop/* .                                                     # Copy desktop assets (icon, desktop file and appstream metadata)
+cp desktop/linux/* .                                               # Copy desktop assets (icon, desktop file and appstream metadata)
 cp in.org.dawn.puppet.svg AppDir/usr/share/icons/hicolor/scalable/ # Copy icon to the appstream standard directory
 cp in.org.dawn.puppet.appdata.xml /usr/share/metainfo/             # Copy appdata to metainfo directory
 
