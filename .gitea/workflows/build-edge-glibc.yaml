@@ -31,10 +31,6 @@ jobs:
       - name: Checkout
         uses: taiki-e/checkout-action@v1
 
-      - uses: Swatinem/rust-cache@v2
-        with:
-          key: ubuntu-latest
-
       - name: Prepare Deployment
         run: |
           cp deploy/appimage/deploy deployAppImage
