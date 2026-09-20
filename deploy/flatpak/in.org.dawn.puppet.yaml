@@ -1,0 +1,47 @@
+id: in.org.dawn.puppet
+runtime: org.freedesktop.Platform
+runtime-version: "26.08"
+sdk: org.freedesktop.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.rust-stable
+command: puppet
+
+finish-args:
+  - --share=network
+  - --share=ipc
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --device=dri
+  - --socket=pulseaudio
+  - --filesystem=host:ro
+
+build-options:
+  append-path: /usr/lib/sdk/rust-stable/bin
+
+add-extensions:
+  org.freedesktop.Platform.GStreamer:
+    directory: lib/extensions/gstreamer-1.0
+    version: "1.0"
+    subdirectories: true
+
+modules:
+  - name: puppet
+    buildsystem: simple
+    build-options:
+      env:
+        CARGO_HOME: /run/build/puppet/cargo
+    build-commands:
+      - cargo --offline fetch --manifest-path Cargo.toml --verbose
+      - cargo --offline build --release
+      - install -Dm755 target/release/puppet /app/bin/puppet
+    post-install:
+      - install -Dm644 desktop/linux/${FLATPAK_ID}.svg "/app/share/icons/hicolor/scalable/apps/${FLATPAK_ID}.svg"
+      - install -Dm644 desktop/linux/${FLATPAK_ID}.desktop "/app/share/applications/${FLATPAK_ID}.desktop"
+      - install -Dm644 desktop/linux/${FLATPAK_ID}.appdata.xml "/app/share/metainfo/${FLATPAK_ID}.appdata.xml"
+
+    sources:
+      - type: "archive"
+        url: "https://code.dawn.org.in/flamboyantpenguin/puppet/archive/master.zip"
+        dest-filename: puppet.zip
+        sha256: "be3ccaed91211a0ecd8200e645b59f624aa79ae17ab772402fc6751f4896d520"
+      - cargo-sources.json
