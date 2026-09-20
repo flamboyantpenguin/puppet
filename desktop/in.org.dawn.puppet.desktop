@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Puppet
+GenericName=A broadcast logic desktop PC controller client for various tasks
+Comment=An app to receive commands as UDP/TCP and perform them as a kiosk
+Keywords=udp;tcp;broadcast;kiosk;automation;remote-control;listener;packet-receiver;desktop-controller;
+Exec=puppet
+Icon=in.org.dawn.puppet
+Terminal=false
+Type=Application
+Categories=Network;Utility;System;RemoteAccess;AudioVideo;

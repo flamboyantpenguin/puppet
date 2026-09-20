@@ -8,6 +8,7 @@ name: Build Edge for Windows
       - "src/**"
       - "Cargo.toml"
       - "Cargo.lock"
+      - "build.rs"
   pull_request: {}
   workflow_dispatch: {}
 
@@ -17,7 +18,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: taiki-e/checkout-action@v1
 
       - name: Setup MSVC Developer Environment
         uses: ilammy/msvc-dev-cmd@v1

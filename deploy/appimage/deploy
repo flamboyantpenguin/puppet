@@ -1,18 +1,18 @@
 #!/bin/bash
 
-OUTPUT="/output"
+# Simple script to build AppImage for a gstreamer dependent Rust project
+
+# Script is designed to work for the project flamboyantpenguin/puppet
 
 # This script must be placed in the root directory
 
-####  #   # ### #     ####
-#   # #   #  #  #     #   #
-####  #   #  #  #     #   #
-#   # #   #  #  #     #   #
-####   ###  ### ##### ####
+#   #  ###  ####   ####
+#   # #   # #   # #
+#   # ##### ####   ###
+# #  #   # #  #      #
+#   #   # #   # ####
 
-cargo build --release
-
-cp target/release/puppet .
+OUTPUT="/output"
 
 # This happens if you don't follow a universal code for architectures ):[
 arch=$(dpkg --print-architecture)
@@ -30,20 +30,48 @@ else
     lib="/usr/lib/$ARCH-linux-gnu"
 fi
 
-wget "https://github.com/linuxdeploy/linuxdeploy/releases/latest/download/linuxdeploy-x86_64.AppImage"
+####  #   # ### #     ####
+#   # #   #  #  #     #   #
+####  #   #  #  #     #   #
+#   # #   #  #  #     #   #
+####   ###  ### ##### ####
+
+cargo build --release # Build binary
+
+cp target/release/puppet . # Copy binary to cwd
+
+####  ####  ##### ####   ###  ####  #####
+#   # #   # #     #   # #   # #   # #
+####  ####  ####  ####  ##### ####  ####
+#     #  #  #     #     #   # #  #  #
+#     #   # ##### #     #   # #   # #####
+
+wget "https://github.com/linuxdeploy/linuxdeploy/releases/latest/download/linuxdeploy-$ARCH.AppImage"
 wget "https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gstreamer/refs/heads/master/linuxdeploy-plugin-gstreamer.sh"
 
+# Make everything executable
 chmod u+x ./*
 
+# Create dirs for icon and metainfo (I don't understand why linuxdeploy-x86_64.AppImage can't do this despite `-i` (icon) flag)
 mkdir -p AppDir/usr/share/icons/hicolor/scalable
+mkdir -p /usr/share/metainfo
 
-cp desktop/appimage/* .
-cp in.org.dawn.puppet.svg AppDir/usr/share/icons/hicolor/scalable
+cp desktop/* .                                                     # Copy desktop assets (icon, desktop file and appstream metadata)
+cp in.org.dawn.puppet.svg AppDir/usr/share/icons/hicolor/scalable/ # Copy icon to the appstream standard directory
+cp in.org.dawn.puppet.appdata.xml /usr/share/metainfo/             # Copy appdata to metainfo directory
 
-./linuxdeploy-x86_64.AppImage \
+####  ##### ####  #      ###  #   #
+#   # #     #   # #     #   #  # #
+#   # ####  ####  #     #   #   #
+#   # #     #     #     #   #   #
+####  ##### #     #####  ###    #
+
+# Linux deploy does handle desktop file
+./linuxdeploy-$ARCH.AppImage \
     --appimage-extract-and-run \
     --appdir AppDir \
     -e puppet -d in.org.dawn.puppet.desktop -i in.org.dawn.puppet.svg \
     --plugin gstreamer --output appimage
 
-mv puppet*.svg $OUTPUT
+# Copy built AppImage to output
+mv puppet-$ARCH.AppImage $OUTPUT

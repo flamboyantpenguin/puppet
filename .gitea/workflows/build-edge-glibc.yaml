@@ -8,44 +8,49 @@ name: Build Edge for glibc
       - "src/**"
       - "Cargo.toml"
       - "Cargo.lock"
+      - "build.rs"
   pull_request: {}
   workflow_dispatch: {}
 
 jobs:
-  build-amd64:
+  build-appimage:
     runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - target: amd64
+            alt_name: x86_64
+
     container:
-      image: rust:bookworm
+      image: code.dawn.org.in/flamboyantpenguin/appimager:puppet
+      options: --platform linux/${{ matrix.target }}
 
     steps:
-      - name: Prepare Checkouts
-        run: apt update && apt install nodejs -y
-
       - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Setup Build
-        run: |
-          apt-get install -y \
-            libasound2-dev \
-            libgstreamer1.0-dev \
-            libgstreamer-plugins-base1.0-dev
-          rustup target add x86_64-unknown-linux-gnu
+        uses: taiki-e/checkout-action@v1
 
       - uses: Swatinem/rust-cache@v2
         with:
           key: ubuntu-latest
 
-      - name: Build
-        run: cargo build --release --target x86_64-unknown-linux-gnu
+      - name: Prepare Deployment
+        run: |
+          cp deploy/appimage/deploy deployAppImage
+          mkdir /output
+          chmod u+x deployAppImage
+
+      - name: Deploy
+        run: bash deployAppImage
 
       - name: Publish
         run: |
           curl \
           --user ${{ gitea.repository_owner }}:${{ secrets.TOKEN }} \
           -X DELETE \
-          https://code.dawn.org.in/api/packages/${{ gitea.repository_owner }}/generic/puppet/edge/puppet-glibc-amd64
+          https://code.dawn.org.in/api/packages/${{ gitea.repository_owner }}/generic/puppet/edge/puppet-${{ matrix.alt_name }}.AppImage
           curl  \
           --user ${{ gitea.repository_owner }}:${{ secrets.TOKEN }} \
-          --upload-file target/x86_64-unknown-linux-gnu/release/puppet \
-          https://code.dawn.org.in/api/packages/${{ gitea.repository_owner }}/generic/puppet/edge/puppet-glibc-amd64
+          --upload-file /output/puppet-${{ matrix.alt_name }}.AppImage \
+          https://code.dawn.org.in/api/packages/${{ gitea.repository_owner }}/generic/puppet/edge/puppet-${{ matrix.alt_name }}.AppImage
