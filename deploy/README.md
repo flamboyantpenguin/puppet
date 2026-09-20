@@ -6,13 +6,35 @@ If you're looking to install this software in your machine, this is not the righ
 
 We intent to release builds for all platforms possible with the resources we have. If you wish to see this software available for your OS or architecture, do let us know.
 
+## How is it done?
+
+One word - CI/CD. This project is mainly hosted on GitHub, however it is also mirrored to [DAWN Code Repository](https://code.dawn.org.in). This is to keep a backup and to run CI/CD pipelines on infastructure powered by DAWN. DCR on Gitea also offers fantastic ways to host packages - debian, alpine, fedora, arch etc.
+
+### Edge Builds
+
+Edge builds are binaries built on the latest commit on `master` branch. This is intended for testing and those interested in getting the latest and greatest.
+
+### Release Builds
+
+Release builds are binaries built on the latest tagged version branch - `v*`. This is the actual release version published to users worldwide. OS native packages, Flatpak etc will be built only on release.
+
 ## Availability
 
-- [ ] Linux
-  - [ ] Debian
-  - [ ] Arch
-  - [x] AppImage
-- [ ] Windows
+> [!NOTE]
+> We will try to support new packages or system architectures not mentioned here upon request
+
+| Package           | OS      | System Architecture | Auto Updates | Status | Build         |
+| ----------------- | ------- | ------------------- | ------------ | ------ | ------------- |
+| Windows Installer | Windows | amd64               | ❎           | 🟡     | Release       |
+| AppImage          | Linux   | amd64               | ❎           | 🟢     | Release, Edge |
+| Debian            | Linux   | amd64               | ✅           | 🔵     | Release       |
+| Arch              | Linux   | amd64               | ✅           | 🔵     | Release       |
+| Flatpak           | Linux   | amd64               | ✅           | 🔵     | Release       |
+
+- 🔴: Critically broken
+- 🔵: Planned, not yet started
+- 🟡: In Progress
+- 🟢: Available
 
 ## Backward Compatibility and glibc
 
