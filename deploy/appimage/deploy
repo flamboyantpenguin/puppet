@@ -15,6 +15,7 @@
 OUTPUT="/output"
 
 # This happens if you don't follow a universal code for architectures ):[
+ARCH=$(uname -m)
 arch=$(dpkg --print-architecture)
 if [ $arch = "i386" ]; then
     ARCH="i386"
@@ -36,7 +37,8 @@ fi
 #   # #   #  #  #     #   #
 ####   ###  ### ##### ####
 
-cargo build --release # Build binary
+source $HOME/.cargo/env # Sigh
+cargo build --release   # Build binary
 
 cp target/release/puppet . # Copy binary to cwd
 

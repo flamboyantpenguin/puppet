@@ -5,7 +5,7 @@ name: Build AppImage Builder
     branches:
       - master
     paths:
-      - "deploy/appimage/**"
+      - "deploy/appimage/Containerfile"
   workflow_dispatch: {}
 
 jobs:
