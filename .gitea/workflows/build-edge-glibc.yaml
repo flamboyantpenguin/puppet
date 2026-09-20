@@ -44,8 +44,8 @@ jobs:
           curl \
           --user ${{ gitea.repository_owner }}:${{ secrets.TOKEN }} \
           -X DELETE \
-          https://code.dawn.org.in/api/packages/${{ gitea.repository_owner }}/generic/puppet/edge/puppet-${{ matrix.alt_name }}.AppImage
+          https://code.dawn.org.in/api/packages/${{ gitea.repository_owner }}/generic/puppet/edge/Puppet-${{ matrix.alt_name }}.AppImage
           curl  \
           --user ${{ gitea.repository_owner }}:${{ secrets.TOKEN }} \
-          --upload-file /output/puppet-${{ matrix.alt_name }}.AppImage \
-          https://code.dawn.org.in/api/packages/${{ gitea.repository_owner }}/generic/puppet/edge/puppet-${{ matrix.alt_name }}.AppImage
+          --upload-file /output/Puppet-${{ matrix.alt_name }}.AppImage \
+          https://code.dawn.org.in/api/packages/${{ gitea.repository_owner }}/generic/puppet/edge/Puppet-${{ matrix.alt_name }}.AppImage

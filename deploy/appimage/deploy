@@ -76,4 +76,4 @@ cp in.org.dawn.puppet.appdata.xml /usr/share/metainfo/             # Copy appdat
     --plugin gstreamer --output appimage
 
 # Copy built AppImage to output
-mv puppet-$ARCH.AppImage $OUTPUT
+mv Puppet-$ARCH.AppImage $OUTPUT
