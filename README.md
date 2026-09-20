@@ -2,6 +2,10 @@
 
 A simple program to receive instructions from a server via UDP broadcasts, then decode them to do the actions as instructed.
 
+## Installation ⬇
+
+Refer [INSTALL.md](INSTALL.md)
+
 ## Instructions 📜
 
 Instructions are JSON data trasmitted as UTF-8 string via UDP broadcasts. Puppet expects the JSON to follow a strict format.
@@ -27,7 +31,7 @@ Instructions are JSON data trasmitted as UTF-8 string via UDP broadcasts. Puppet
 - device_id: ID that identifies the puppet host. Is a string
 - msg_type: Classifies instruction types
   - VOD - Void (None)
-  - TXT - Text
+  - TXT - Text (Currently useless)
   - AUD - Audio
   - IMG - Image
   - VID - Video (Coming Soon...)
@@ -83,11 +87,18 @@ There is no recognised dedicated server program for this purpose as of writing t
 
 **A:** Excluding the many advantages of Rust including but not limited to cross-compatability, memory safety, excellent library management etc, I do like to code in Rust.
 
+## Development
+
+Development docs are underway.
+
+- [Deployment](deploy/README.md)
+- [Versioning](VERSION.md)
+
 ## About 🐈‍⬛
 
 ```txt
 puppet pre-alpha
-Last Updated: 15 Sep 2026
+Last Updated: 20 Sep 2026
 
-ペンギン
+DAWN/ペンギン
 ```
