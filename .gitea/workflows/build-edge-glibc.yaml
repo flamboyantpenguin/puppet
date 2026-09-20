@@ -34,7 +34,6 @@ jobs:
       - name: Prepare Deployment
         run: |
           cp deploy/appimage/deploy deployAppImage
-          mkdir /output
           chmod u+x deployAppImage
 
       - name: Deploy
