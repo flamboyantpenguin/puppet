@@ -1,0 +1,53 @@
+---
+name: Build Release
+"on":
+  push:
+    tags:
+      - "v*"
+    paths:
+      - "src/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+  workflow_dispatch: {}
+
+jobs:
+  build-appimage:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - target: amd64
+            alt_name: x86_64
+
+    container:
+      image: code.dawn.org.in/flamboyantpenguin/appimager:puppet
+      options: --platform linux/${{ matrix.target }}
+
+    steps:
+      - name: Checkout
+        uses: taiki-e/checkout-action@v1
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ubuntu-latest
+
+      - name: Prepare Deployment
+        run: |
+          cp deploy/appimage/deploy deployAppImage
+          chmod u+x deployAppImage
+
+      - name: Deploy
+        run: bash deployAppImage
+
+      - name: Publish
+        run: |
+          curl \
+          --user ${{ gitea.repository_owner }}:${{ secrets.TOKEN }} \
+          -X DELETE \
+          https://code.dawn.org.in/api/packages/${{ gitea.repository_owner }}/generic/puppet/${{ gitea.ref_name }}/Puppet-${{ matrix.alt_name }}.AppImage
+          curl  \
+          --user ${{ gitea.repository_owner }}:${{ secrets.TOKEN }} \
+          --upload-file /output/Puppet-${{ matrix.alt_name }}.AppImage \
+          https://code.dawn.org.in/api/packages/${{ gitea.repository_owner }}/generic/puppet/${{ gitea.ref_name }}/Puppet-${{ matrix.alt_name }}.AppImage
