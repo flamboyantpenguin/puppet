@@ -8,6 +8,20 @@ Instructions are JSON data trasmitted as UTF-8 string via UDP broadcasts. Format
 
 ## Fields
 
+```txt
+{
+  "header": "!Puppet93",
+  "token": "MeowMeowMeow",
+  "device_id": "0",
+  "msg_type": "AUD",
+  "msg_data": "https://yumicoradio.net/stream",
+  "msg_params": [
+    "30s"
+  ],
+  "timestamp": 1785863627
+}
+```
+
 ### header
 
 Denotes a group. A base level check made by puppet, header has to match the value by the same name configured in puppet. This can be used to divide hosts into groups
@@ -45,6 +59,8 @@ UNIX EPOCH for puppet to instruct when to start the action (good for precision).
 Do note that some instructions (like playing a heavy video) might take time by itself to load, setting an earlier timestamp does not inherently solve this problem. If you have ideas to solve this dilemma, do let us know - PRs are welcome.
 
 # Instructions - msg_type
+
+`msg_type` is a string that denotes the type of command.
 
 ## VOD
 
