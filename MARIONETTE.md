@@ -191,7 +191,7 @@ https://samplelib.com/mp4/sample-5s.mp4
 
 ### Example(s)
 
-Play [https://samplelib.com/mp4/sample-5s.mp4"](https://samplelib.com/mp4/sample-5s.mp4") till end
+Play [https://samplelib.com/mp4/sample-5s.mp4](https://samplelib.com/mp4/sample-5s.mp4) till end
 
 ```bash
 echo '{"header": "!Puppet93", "token": "MeowMeowMeow", "device_id": "0", "msg_type": "VID", "msg_data": "https://samplelib.com/mp4/sample-5s.mp4", "timestamp": 0}' | socat - UDP-DATAGRAM:10.0.255.255:8888,broadcast
