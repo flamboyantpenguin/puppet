@@ -31,22 +31,24 @@ Instructions are JSON data trasmitted as UTF-8 string via UDP broadcasts. Puppet
 - device_id: ID that identifies the puppet host. Is a string
 - msg_type: Classifies instruction types
   - VOD - Void (None)
-  - TXT - Text (Currently useless)
+  - TXT - Toast
   - AUD - Audio
   - IMG - Image
   - VID - Video (Coming Soon...)
   - YTA - YouTube Audio (Coming Soon...)
   - YTV - YouTube Video (Coming Soon...)
 - msg_data: Data for the action to process (For YTA, it is the YouTube URL)
-- msg_params: Extra params for the actions. ex: "{["50s"]}" as first param for AUD to play for 50s.
+- msg_params: Extra params for the actions. ex: "{"time": "50s"}" for AUD to play for 50s.
 - timestamp: UNIX EPOCH for puppet to instruct when to start the action (good for precision). If the value is 0, puppet is intructed to perform the action ASAP.
+
+Check [MARIONETTE.md](MARIONETTE.md) for detailed info on instructions.
 
 ### Sample Commands 🧑‍💻
 
 The following command sends a sample UDP broadcast on linux using the command `socat`. This can be picked by puppet.
 
 ```bash
-echo '{"header": "!Puppet93", "token": "MeowMeowMeow", "device_id": "0", "msg_type": "AUD", "msg_data": "https://yumicoradio.net/stream", "msg_params": ["30s"], "timestamp": 1785863627}' | socat - UDP-DATAGRAM:10.229.99.255:8888,broadcast
+echo '{"header": "!Puppet93", "token": "MeowMeowMeow", "device_id": "0", "msg_type": "AUD", "msg_data": "https://yumicoradio.net/stream", "msg_params": {"time": "30s"}, "timestamp": 1785863627}' | socat - UDP-DATAGRAM:10.229.99.255:8888,broadcast
 ```
 
 This command is to instruct puppet to stream [yumicoradio.net](https://yumicoradio.net) at timestamp 1785863627 for 30 seconds.
@@ -98,7 +100,7 @@ Development docs are underway.
 
 ```txt
 puppet pre-alpha
-Last Updated: 20 Sep 2026
+Last Updated: 21 Sep 2026
 
 DAWN/ペンギン
 ```

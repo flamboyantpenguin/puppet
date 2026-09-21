@@ -1,6 +1,6 @@
 [package]
 name = "puppet"
-version = "2026.9.20-0"
+version = "2026.9.21-0"
 license = "MIT"
 edition = "2024"
 authors = ["flamboyantpenguin <mail@flamboyantpenguin.in>"]
@@ -12,7 +12,7 @@ chrono = { version = "0.4.45", default-features = false, features = ["clock", "s
 chrono-humanize = "0.2.3"
 dark-light = "3.0.0"
 humantime = "2.4.0"
-iced = { version = "0.14.0", features = ["image", "svg"] }
+iced = { version = "0.14.0", features = ["image", "svg", "tokio"] }
 iced_gif = { version = "0.14.0", features = ["tokio"] }
 iced_video_player = "0.6.0"
 open = "5.4.1"
@@ -25,6 +25,7 @@ tokio =  { version = "1.53.1", features = ["rt-multi-thread"] }
 url = "2.5.8"
 reqwest = { version = "0.12", features = ["json"] }
 directories = "6.0.0"
+iced_toaster = "0.2.0"
 
 [target.'cfg(windows)'.build-dependencies]
 winres = "0.1.12"

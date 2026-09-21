@@ -2,8 +2,10 @@ use crate::gui::{fonts, image::load_image};
 
 use crate::gui::theme::CrimsonPuppet;
 use crate::models::config::app_config;
-use iced::window;
+use iced::time::milliseconds;
 use iced::{Element, Subscription, Task, futures::SinkExt, stream};
+use iced::{time, window};
+use iced_toaster::{ToastId, Toaster, error_toast, info_toast, toaster, warning_toast};
 
 use crate::{
     app::{
@@ -20,6 +22,7 @@ use crate::{
 pub struct App {
     screen: Screen,
     theme: CrimsonPuppet,
+    toaster: Toaster<Message>,
 }
 
 enum Screen {
@@ -30,13 +33,16 @@ enum Screen {
     Image(iced::widget::image::Handle),
 }
 
-#[derive(Debug)]
+#[derive(Clone)]
 pub enum Message {
     FontLoaded(Result<(), iced::font::Error>),
     Welcome(WelcomeMessage),
     Player(PlayerMessage),
     Gui(GuiEvent),
     ImageLoaded(Result<Vec<u8>, String>),
+    Tick,
+    DismissToast(ToastId),
+    HoverToast(ToastId, bool),
 }
 
 fn gui_listener() -> impl iced::futures::Stream<Item = Message> {
@@ -51,15 +57,10 @@ fn gui_listener() -> impl iced::futures::Stream<Item = Message> {
 
                 match event {
                     Some(event) => {
-                        match output.send(Message::Gui(event)).await {
-                            Err(err) => {
-                                elog!(
-                                    &format!("Failed to load video: {:?}", err).to_string(),
-                                    "gui"
-                                );
-                            }
-                            Ok(_) => {}
-                        };
+                        if output.send(Message::Gui(event)).await.is_err() {
+                            println!("This should not happen");
+                            break;
+                        }
                     }
                     None => break,
                 }
@@ -89,6 +90,7 @@ impl App {
             Self {
                 screen: Screen::Welcome(config),
                 theme: initial_theme,
+                toaster: toaster(),
             },
             Task::batch(vec![config_task, font_task]),
         )
@@ -103,7 +105,21 @@ impl App {
     }
 
     pub fn subscription(&self) -> Subscription<Message> {
-        Subscription::run(gui_listener)
+        match &self.screen {
+            Screen::Player(player) => {
+                let player_sub = player.subscription().map(|msg| Message::Player(msg));
+
+                Subscription::batch(vec![
+                    Subscription::run(gui_listener),
+                    player_sub,
+                    time::every(milliseconds(200)).map(|_| Message::Tick),
+                ])
+            }
+            _ => Subscription::batch(vec![
+                Subscription::run(gui_listener),
+                time::every(milliseconds(200)).map(|_| Message::Tick),
+            ]),
+        }
     }
 
     pub fn update(&mut self, message: Message) -> Task<Message> {
@@ -142,6 +158,25 @@ impl App {
                         self.screen = Screen::Idle(Idle::new());
                     } else {
                         self.screen = Screen::Void;
+                    }
+                }
+
+                Task::none()
+            }
+
+            (_, Message::Gui(GuiEvent::ShowToast(message, toast_type))) => {
+                match toast_type.as_str() {
+                    "info" => {
+                        self.toaster.push(info_toast!(message));
+                    }
+                    "warning" => {
+                        self.toaster.push(warning_toast!(message));
+                    }
+                    "critical" => {
+                        self.toaster.push(error_toast!(message));
+                    }
+                    _ => {
+                        self.toaster.push(info_toast!(message));
                     }
                 }
 
@@ -187,17 +222,39 @@ impl App {
                 Task::none()
             }
 
+            (_, Message::Tick) => {
+                self.toaster.dismiss_expired();
+                Task::none()
+            }
+
+            (_, Message::DismissToast(id)) => {
+                self.toaster.dismiss(id);
+                Task::none()
+            }
+
+            (_, Message::HoverToast(id, is_hovered)) => {
+                self.toaster.set_hovered(id, is_hovered);
+                Task::none()
+            }
+
             _ => Task::none(),
         }
     }
 
     pub fn view(&self) -> Element<'_, Message> {
-        match &self.screen {
+        let content = match &self.screen {
             Screen::Welcome(config) => config.view().map(Message::Welcome),
             Screen::Player(player) => player.view().map(Message::Player),
             Screen::Idle(idle) => idle.view().map(|_| unreachable!()),
             Screen::Image(image) => iced::widget::image(image.clone()).into(),
             Screen::Void => iced::widget::space().into(),
-        }
+        };
+
+        let content = iced::widget::container(content)
+            .width(iced::Length::Fill)
+            .height(iced::Length::Fill);
+
+        self.toaster
+            .view(content, Message::DismissToast, Message::HoverToast)
     }
 }

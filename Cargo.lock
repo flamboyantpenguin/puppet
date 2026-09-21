@@ -2211,6 +2211,7 @@ dependencies = [
  "iced_core",
  "log",
  "rustc-hash 2.1.3",
+ "tokio",
  "wasm-bindgen-futures",
  "wasmtimer",
 ]
@@ -2303,6 +2304,15 @@ dependencies = [
  "rustc-hash 2.1.3",
  "softbuffer",
  "tiny-skia",
+]
+
+[[package]]
+name = "iced_toaster"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "34d3b297c2cbf497a70a7066b834784273c040f60f73b670d9728a1e2ab9675f"
+dependencies = [
+ "iced_widget",
 ]
 
 [[package]]
@@ -4027,7 +4037,7 @@ checksum = "1d8f70e07b9c3962945a74e59ca1c511bba65b6419468acc217c457d93f3c740"
 
 [[package]]
 name = "puppet"
-version = "2026.9.20-0"
+version = "2026.9.21-0"
 dependencies = [
  "chrono",
  "chrono-humanize",
@@ -4036,6 +4046,7 @@ dependencies = [
  "humantime",
  "iced",
  "iced_gif",
+ "iced_toaster",
  "iced_video_player",
  "open",
  "owo-colors",

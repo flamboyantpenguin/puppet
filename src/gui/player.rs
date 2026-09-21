@@ -1,26 +1,29 @@
 use iced::{
-    Element,
+    Element, Event, Subscription, event,
+    keyboard::{self, key},
     widget::{Column, Container, Text},
 };
 use iced_video_player::{Video, VideoPlayer};
 use std::{path::Path, time::Duration};
+use tokio::time::Instant;
 
-use crate::app::{blog, elog};
+use crate::{
+    app::{blog, elog},
+    models::config::app_static,
+};
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub enum Message {
-    TogglePause,
-    ToggleLoop,
-    Seek(f64),
-    SeekRelease,
     EndOfStream,
     NewFrame,
+    Event(Event),
 }
 
 pub struct PlayerApp {
     video: Option<Video>,
     position: f64,
     dragging: bool,
+    last_r_press: Option<Instant>,
 }
 
 impl PlayerApp {
@@ -29,7 +32,12 @@ impl PlayerApp {
             video: None,
             position: 0.0,
             dragging: false,
+            last_r_press: None,
         }
+    }
+
+    pub fn subscription(&self) -> Subscription<Message> {
+        event::listen().map(Message::Event)
     }
 
     pub fn open(&mut self, path: impl AsRef<Path>) {
@@ -65,24 +73,57 @@ impl PlayerApp {
     pub fn update(&mut self, message: Message) {
         if let Some(video) = &mut self.video {
             match message {
-                Message::TogglePause => {
-                    video.set_paused(!video.paused());
-                }
-                Message::ToggleLoop => {
-                    video.set_looping(!video.looping());
-                }
-                Message::Seek(secs) => {
-                    self.dragging = true;
-                    video.set_paused(true);
-                    self.position = secs;
-                }
-                Message::SeekRelease => {
-                    self.dragging = false;
-                    video
-                        .seek(Duration::from_secs_f64(self.position), false)
-                        .expect("seek failed");
-                    video.set_paused(false);
-                }
+                Message::Event(event) => match event {
+                    Event::Keyboard(keyboard::Event::KeyPressed {
+                        key: keyboard::Key::Named(key::Named::Space),
+                        ..
+                    }) => {
+                        video.set_paused(!video.paused());
+                    }
+                    Event::Keyboard(keyboard::Event::KeyPressed {
+                        key: keyboard::Key::Character(c),
+                        ..
+                    }) if c == "r" || c == "R" => video.set_looping(!video.looping()),
+                    Event::Keyboard(keyboard::Event::KeyPressed {
+                        key: keyboard::Key::Named(key::Named::ArrowRight),
+                        repeat: false,
+                        ..
+                    }) => {
+                        let now = Instant::now();
+
+                        if let Some(last_press) = self.last_r_press {
+                            if now.duration_since(last_press) <= app_static().double_tap_threshold {
+                                self.last_r_press = None;
+
+                                video
+                                    .seek(Duration::from_secs_f64(self.position + 5.0), false)
+                                    .expect("seek failed");
+                            }
+                        }
+
+                        self.last_r_press = Some(now);
+                    }
+                    Event::Keyboard(keyboard::Event::KeyPressed {
+                        key: keyboard::Key::Named(key::Named::ArrowLeft),
+                        repeat: false,
+                        ..
+                    }) => {
+                        let now = Instant::now();
+
+                        if let Some(last_press) = self.last_r_press {
+                            if now.duration_since(last_press) <= app_static().double_tap_threshold {
+                                self.last_r_press = None;
+
+                                video
+                                    .seek(Duration::from_secs_f64(self.position - 5.0), false)
+                                    .expect("seek failed");
+                            }
+                        }
+
+                        self.last_r_press = Some(now);
+                    }
+                    _ => {}
+                },
                 Message::EndOfStream => {
                     blog!("end of stream", "gui-player");
                 }

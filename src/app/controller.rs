@@ -10,9 +10,10 @@ pub enum AppEvent {
     ConfigSaved,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub enum GuiEvent {
     UnLoad,
+    ShowToast(String, String),
     LoadVideo(String),
     LoadImage(String),
 }

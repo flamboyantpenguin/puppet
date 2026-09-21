@@ -344,7 +344,7 @@ impl WelcomeApp {
                 packages_button,
                 puppeteer_button,
                 horizontal(),
-                text("Puppet Pre-󰀫").font(fonts::NERD_FONT)
+                text(app_static().version).font(fonts::NERD_FONT)
             ]
             .align_y(Vertical::Center),
         )

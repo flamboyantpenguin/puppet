@@ -1,19 +1,23 @@
-use std::sync::OnceLock;
+use std::{sync::OnceLock, time::Duration};
 
 pub struct AppStatic {
     pub app_name: &'static str,
+    pub version: &'static str,
     pub github_url: &'static str,
     pub package_url: &'static str,
     pub puppeteer_url: &'static str,
+    pub double_tap_threshold: Duration,
 }
 
 pub fn app_static() -> &'static AppStatic {
     static INSTANCE: OnceLock<AppStatic> = OnceLock::new();
     INSTANCE.get_or_init(|| AppStatic {
         app_name: "puppet",
+        version: env!("CARGO_PKG_VERSION"),
         github_url: "https://github.com/flamboyantpenguin/puppet",
         package_url: "https://code.dawn.org.in/flamboyantpenguin/puppet/packages",
         puppeteer_url: "https://github.com/flamboyantpenguin/puppeteer",
+        double_tap_threshold: Duration::from_millis(250),
     })
 }
 

@@ -3,6 +3,7 @@ use std::sync::mpsc::{self, Sender};
 
 use chrono::{Duration, Utc};
 use chrono_humanize::{Accuracy, HumanTime, Tense};
+use serde_json::Value;
 
 use crate::actions::audio;
 use crate::app::controller::{GuiEvent, send_gui};
@@ -58,10 +59,17 @@ async fn process(info: data::Payload, config: &AppConfig, host: String) {
             &format!("TXT message : {} from {}", info.msg_data, host).to_string(),
             "core"
         );
+        let msg_type = info
+            .get_param("type")
+            .and_then(Value::as_str)
+            .unwrap_or("info")
+            .to_string();
+
+        send_gui(GuiEvent::ShowToast(info.msg_data, msg_type));
     } else if info.msg_type == "AUD" {
         tokio::time::sleep(std::time::Duration::from_millis(config.delay_ms)).await;
         let mut time_s = 0;
-        if let Some(time) = info.get_param(0) {
+        if let Some(time) = info.get_param("time").and_then(Value::as_str) {
             time_s = time.parse::<humantime::Duration>().unwrap().as_secs();
             blog!(
                 &format!("Playing AUD request from {} for {}", host, time).to_string(),
@@ -81,7 +89,7 @@ async fn process(info: data::Payload, config: &AppConfig, host: String) {
         }
     } else if info.msg_type == "VID" {
         tokio::time::sleep(std::time::Duration::from_millis(config.delay_ms)).await;
-        if let Some(time) = info.get_param(0) {
+        if let Some(time) = info.get_param("till") {
             blog!(
                 &format!("Playing VID request from {} for {}", host, time).to_string(),
                 "core"
