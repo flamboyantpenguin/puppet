@@ -1,4 +1,4 @@
-# Version Bump Guidelines
+# Versioning and Bump Guidelines
 
 Greetings. This document explains how this repository handles software versions.
 
@@ -31,12 +31,13 @@ This is a list of files in the repository that has something to do with versioni
 
 - Cargo.toml
 - desktop/in.org.dawn.puppet.appdata.xml
+- deploy/flatpak/in.org.dawn.puppet.yaml
 
 ## About 🐈‍⬛
 
 ```txt
 puppet
-Last Updated: 20 Sep 2026
+Last Updated: 21 Sep 2026
 
 DAWN/ペンギン
 ```

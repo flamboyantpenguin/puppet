@@ -68,9 +68,9 @@ async fn process(info: data::Payload, config: &AppConfig, host: String) {
         send_gui(GuiEvent::ShowToast(info.msg_data, msg_type));
     } else if info.msg_type == "AUD" {
         tokio::time::sleep(std::time::Duration::from_millis(config.delay_ms)).await;
-        let mut time_s = 0;
+        let mut time_ms = 0;
         if let Some(time) = info.get_param("time").and_then(Value::as_str) {
-            time_s = time.parse::<humantime::Duration>().unwrap().as_secs();
+            time_ms = time.parse::<humantime::Duration>().unwrap().as_millis() as u64;
             blog!(
                 &format!("Playing AUD request from {} for {}", host, time).to_string(),
                 "core"
@@ -81,7 +81,7 @@ async fn process(info: data::Payload, config: &AppConfig, host: String) {
                 "core"
             );
         }
-        match audio::play(info.msg_data.to_string(), time_s).await {
+        match audio::play(info.msg_data.to_string(), time_ms).await {
             Ok(()) => {}
             Err(e) => {
                 elog!(&e.to_string());
