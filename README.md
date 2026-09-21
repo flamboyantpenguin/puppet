@@ -4,7 +4,15 @@ A simple program to receive instructions from a server via UDP broadcasts, then 
 
 ## Installation ⬇
 
-Refer [INSTALL.md](INSTALL.md)
+puppet is available on Linux and Windows and can be installed in many ways.
+
+| Package                                                | OS    | System Architecture | Auto Updates | Build         |
+| ------------------------------------------------------ | ----- | ------------------- | ------------ | ------------- |
+| [<img src=".misc/assets/appimage.svg" width="48">](<>) | Linux | amd64               | ❎           | Release, Edge |
+
+You can find the installation files in [GitHub Releases](https://github.com/flamboyantpenguin/puppet/releases/latest) and in [DAWN Code Repository (DCR) Packages](https://code.dawn.org.in/flamboyantpenguin/puppet/packages).
+
+Refer [INSTALL.md](INSTALL.md) for more info and detailed installation instructions.
 
 ## Instructions 📜
 

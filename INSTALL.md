@@ -11,7 +11,7 @@ puppet is available on Linux and Windows and can be installed in many ways.
 | [<img src="" width="48">](<>) | 🟢                  | amd64               | Linux                |
 | [<img src="" width="48">](<>) | 🔴                  | amd64               | Linux                |
 
-You can find the installation files in [GitHub Releases](https://github.com/flamboyantpenguin/puppet/releases/latest) and in [DAWN Code Repository (DCR) Packages](<>).
+You can find the installation files in [GitHub Releases](https://github.com/flamboyantpenguin/puppet/releases/latest) and in [DAWN Code Repository (DCR) Packages](https://code.dawn.org.in/flamboyantpenguin/puppet/packages).
 
 ## Windows
 
